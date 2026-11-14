@@ -1,49 +1,78 @@
-import React from 'react';
-import { Bot, User } from 'lucide-react';
-import { Message } from '../types/chat';
+import React from "react";
+import { Bot, User, Sparkles, Code, Film, BookOpen } from "lucide-react";
+import { Message, Agent } from "../types/chat";
 
 interface MessageBubbleProps {
   message: Message;
+  agent?: Agent;
 }
 
-export const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
+export const MessageBubble: React.FC<MessageBubbleProps> = ({ message, agent }) => {
+  const isUser = message.sender === "user";
+
+  const renderAgentIcon = (iconName?: string) => {
+    switch (iconName) {
+      case "sparkles":
+        return <Sparkles size={16} />;
+      case "code":
+        return <Code size={16} />;
+      case "film":
+        return <Film size={16} />;
+      case "book-open":
+        return <BookOpen size={16} />;
+      default:
+        return <Bot size={16} />;
+    }
+  };
+
   return (
-    <div
-      className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
-    >
+    <div className={`flex w-full ${isUser ? "justify-start" : "justify-end"} my-2`}>
       <div
-        className={`flex max-w-xs lg:max-w-md xl:max-w-lg ${
-          message.sender === 'user' ? 'flex-row-reverse' : 'flex-row'
-        } gap-3`}
+        className={`flex max-w-[88%] sm:max-w-[78%] md:max-w-[70%] gap-2.5 sm:gap-3 ${
+          isUser ? "flex-row" : "flex-row-reverse"
+        }`}
       >
+        {/* Avatar */}
         <div
-          className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${
-            message.sender === 'user'
-              ? 'bg-gradient-to-r from-blue-600 to-indigo-600'
-              : 'bg-gradient-to-r from-emerald-600 to-teal-600'
+          className={`w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center flex-shrink-0 text-white shadow-md ${
+            isUser
+              ? "bg-gradient-to-br from-blue-600 to-indigo-600"
+              : `bg-gradient-to-br ${
+                  agent?.color || "from-emerald-600 to-teal-600"
+                }`
           }`}
         >
-          {message.sender === 'user' ? (
-            <User size={20} className="text-white" />
-          ) : (
-            <Bot size={20} className="text-white" />
-          )}
+          {isUser ? <User size={16} /> : renderAgentIcon(agent?.avatarIcon)}
         </div>
-        
-        <div
-          className={`rounded-2xl px-4 py-3 ${
-            message.sender === 'user'
-              ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-tr-sm'
-              : 'bg-slate-700/50 text-slate-100 rounded-tl-sm border border-slate-600/30'
-          }`}
-        >
-          <p className="whitespace-pre-wrap">{message.content}</p>
-          <p className="text-xs mt-2 opacity-70">
-            {message.timestamp.toLocaleTimeString('en-US', { 
-              hour: '2-digit', 
-              minute: '2-digit' 
-            })}
-          </p>
+
+        {/* Bubble content */}
+        <div className="flex flex-col">
+          {/* Header row in bubble */}
+          {!isUser && (
+            <span className="text-[11px] text-slate-400 font-medium mb-1 px-1 text-right">
+              {message.agentName || agent?.name || "סוכן"}
+            </span>
+          )}
+
+          <div
+            className={`rounded-2xl px-4 py-3 shadow-md text-sm sm:text-base leading-relaxed text-right ${
+              isUser
+                ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-tr-sm"
+                : "bg-slate-800/90 text-slate-100 rounded-tl-sm border border-slate-700/60"
+            }`}
+          >
+            <p className="whitespace-pre-wrap break-words">{message.content}</p>
+
+            <p
+              className={`text-[10px] mt-1.5 opacity-60 text-left`}
+              dir="ltr"
+            >
+              {new Date(message.timestamp).toLocaleTimeString("he-IL", {
+                hour: "2-digit",
+                minute: "2-digit",
+              })}
+            </p>
+          </div>
         </div>
       </div>
     </div>

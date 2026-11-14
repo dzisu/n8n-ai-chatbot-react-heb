@@ -3,11 +3,25 @@ export interface Message {
   content: string;
   sender: "user" | "bot";
   timestamp: Date;
+  agentId?: string;
+  agentName?: string;
+}
+
+export interface Agent {
+  id: string;
+  name: string;
+  role: string;
+  description: string;
+  webhookUrl: string;
+  avatarIcon?: string; // "sparkles" | "code" | "film" | "book-open" | "bot" | "user" | "brain"
+  color?: string; // Tailwind gradient or color key
+  isDefault?: boolean;
 }
 
 export interface ChatSession {
   id: string;
   title: string;
+  agentId: string;
   messages: Message[];
   createdAt: Date;
   lastUpdated: Date;
@@ -17,9 +31,15 @@ export interface N8NWebhookPayload {
   message: string;
   sessionId: string | null;
   timestamp: string;
+  agentId?: string;
+  agentName?: string;
 }
 
 export interface N8NWebhookResponse {
   response?: string;
   message?: string;
+  output?: string;
+  text?: string;
+  content?: string;
+  data?: any;
 }

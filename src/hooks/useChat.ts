@@ -1,12 +1,13 @@
 import { useState } from "react";
-import { Message, N8NWebhookPayload } from "../types/chat";
+import { Message, N8NWebhookPayload, Agent } from "../types/chat";
 import { N8NService } from "../services/n8nService";
 
 export const useChat = (
   messages: Message[],
   updateMessages: (messages: Message[]) => void,
   currentSessionId: string | null,
-  n8nService: N8NService
+  n8nService: N8NService,
+  activeAgent?: Agent
 ) => {
   const [isLoading, setIsLoading] = useState(false);
 
@@ -29,18 +30,25 @@ export const useChat = (
         message: content,
         sessionId: currentSessionId,
         timestamp: new Date().toISOString(),
+        agentId: activeAgent?.id,
+        agentName: activeAgent?.name,
       };
 
-      const data = await n8nService.sendMessage(payload);
+      const webhookUrl = activeAgent?.webhookUrl;
+      const data = await n8nService.sendMessage(payload, webhookUrl);
 
       const botMessage: Message = {
         id: (Date.now() + 1).toString(),
         content:
           data.response ||
           data.message ||
-          "Sorry, an error occurred during processing",
+          data.output ||
+          data.text ||
+          "התקבלה תשובה ריקה מהסוכן.",
         sender: "bot",
         timestamp: new Date(),
+        agentId: activeAgent?.id,
+        agentName: activeAgent?.name,
       };
 
       const finalMessages = [...updatedMessages, botMessage];
@@ -49,18 +57,10 @@ export const useChat = (
       console.error("Error sending message to n8n:", error);
 
       let errorContent =
-        "Sorry, unable to connect to AI system at the moment. Please check your n8n webhook URL configuration.";
+        "לא ניתן להתחבר לסוכן כרגע. אנא ודא שכתובת ה-Webhook בהגדרות הסוכן נכונה וזמינה.";
 
       if (error instanceof Error) {
-        if (error.message.includes("timeout")) {
-          errorContent =
-            "Request timeout - n8n is taking too long to respond. Please try again.";
-        } else if (error.message.includes("HTTP error")) {
-          errorContent = `Connection error: ${error.message}. Please check your n8n webhook URL.`;
-        } else if (error.message.includes("Failed to fetch")) {
-          errorContent =
-            "Network error - unable to reach n8n webhook. Please check your URL and network connection.";
-        }
+        errorContent = error.message;
       }
 
       const errorMessage: Message = {
@@ -68,6 +68,8 @@ export const useChat = (
         content: errorContent,
         sender: "bot",
         timestamp: new Date(),
+        agentId: activeAgent?.id,
+        agentName: activeAgent?.name,
       };
 
       const finalMessages = [...updatedMessages, errorMessage];

@@ -1,49 +1,62 @@
-import React, { useState, useRef } from 'react';
-import { Send } from 'lucide-react';
+import React, { useState, useRef } from "react";
+import { Send } from "lucide-react";
+import { Agent } from "../types/chat";
 
 interface ChatInputProps {
   onSendMessage: (message: string) => void;
   isLoading: boolean;
+  activeAgent?: Agent;
 }
 
-export const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading }) => {
-  const [inputMessage, setInputMessage] = useState('');
+export const ChatInput: React.FC<ChatInputProps> = ({
+  onSendMessage,
+  isLoading,
+  activeAgent,
+}) => {
+  const [inputMessage, setInputMessage] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleSend = () => {
     if (!inputMessage.trim() || isLoading) return;
     onSendMessage(inputMessage);
-    setInputMessage('');
+    setInputMessage("");
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
+    if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSend();
     }
   };
 
   return (
-    <div className="border-t border-slate-700/50 bg-slate-800/30 backdrop-blur-sm p-6">
-      <div className="flex gap-4 items-end">
-        <div className="flex-1">
+    <div className="border-t border-slate-700/60 bg-slate-900/80 backdrop-blur-md p-3 sm:p-4 flex-shrink-0 z-20">
+      <div className="max-w-4xl mx-auto flex gap-2 sm:gap-3 items-center">
+        <div className="flex-1 min-w-0">
           <input
             ref={inputRef}
             type="text"
             value={inputMessage}
             onChange={(e) => setInputMessage(e.target.value)}
             onKeyPress={handleKeyPress}
-            placeholder="Type your message..."
-            className="w-full bg-slate-700/50 text-white p-4 rounded-2xl border border-slate-600/50 focus:border-blue-500 focus:outline-none resize-none transition-colors duration-200 placeholder-slate-400"
+            placeholder={
+              activeAgent
+                ? `כתוב הודעה ל-${activeAgent.name}...`
+                : "כתוב הודעה כאן..."
+            }
+            className="w-full bg-slate-800/80 text-white text-sm sm:text-base p-3 sm:p-3.5 rounded-2xl border border-slate-700/70 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500/40 transition-all placeholder-slate-400 shadow-inner"
             disabled={isLoading}
+            autoFocus={false}
           />
         </div>
+
         <button
           onClick={handleSend}
           disabled={!inputMessage.trim() || isLoading}
-          className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-4 rounded-2xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:from-blue-600 disabled:hover:to-indigo-600 shadow-lg hover:shadow-xl"
+          className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white p-3 sm:p-3.5 rounded-2xl transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed shadow-md hover:shadow-lg active:scale-95 flex-shrink-0 flex items-center justify-center"
+          title="שלח הודעה"
         >
-          <Send size={20} />
+          <Send size={18} className="transform -rotate-90 sm:rotate-0" />
         </button>
       </div>
     </div>

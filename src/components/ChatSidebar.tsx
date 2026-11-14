@@ -1,104 +1,171 @@
-import React from 'react';
-import { MessageCircle, Trash2, Download } from 'lucide-react';
-import { ChatSession } from '../types/chat';
-import { StorageService } from '../services/storageService';
+import React from "react";
+import {
+  MessageSquare,
+  Plus,
+  Trash2,
+  Download,
+  X,
+  Clock,
+  Sparkles,
+} from "lucide-react";
+import { ChatSession, Agent } from "../types/chat";
 
 interface ChatSidebarProps {
+  isOpen: boolean;
+  onClose: () => void;
   chatSessions: ChatSession[];
   currentSessionId: string | null;
+  agents: Agent[];
   onCreateNewSession: () => void;
   onSwitchSession: (sessionId: string) => void;
   onDeleteSession: (sessionId: string) => void;
-  n8nWebhookUrl: string;
-  onWebhookUrlChange: (url: string) => void;
   onExportChat: () => void;
   hasMessages: boolean;
 }
 
 export const ChatSidebar: React.FC<ChatSidebarProps> = ({
+  isOpen,
+  onClose,
   chatSessions,
   currentSessionId,
+  agents,
   onCreateNewSession,
   onSwitchSession,
   onDeleteSession,
-  n8nWebhookUrl,
-  onWebhookUrlChange,
   onExportChat,
-  hasMessages
+  hasMessages,
 }) => {
-  return (
-    <div className="w-80 bg-slate-800/50 backdrop-blur-sm border-r border-slate-700/50 flex flex-col">
-      {/* Header */}
-      <div className="p-6 border-b border-slate-700/50">
-        <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-          <MessageCircle className="text-blue-400" />
-          Chat History
-        </h2>
-        <button
-          onClick={onCreateNewSession}
-          className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-2 px-4 rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 font-medium"
-        >
-          New Chat
-        </button>
-      </div>
-      
-      {/* Session List */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-2">
-        {chatSessions.map((session) => (
-          <div
-            key={session.id}
-            className={`p-3 rounded-lg cursor-pointer transition-all duration-200 group ${
-              currentSessionId === session.id
-                ? 'bg-blue-600/20 border border-blue-500/30'
-                : 'hover:bg-slate-700/30 border border-transparent'
-            }`}
-            onClick={() => onSwitchSession(session.id)}
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex-1 min-w-0">
-                <p className="text-white text-sm font-medium truncate">
-                  {session.title}
-                </p>
-                <p className="text-slate-400 text-xs mt-1">
-                  {session.lastUpdated.toLocaleDateString('en-US')}
-                </p>
-              </div>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onDeleteSession(session.id);
-                }}
-                className="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-red-400 transition-all duration-200 ml-2"
-              >
-                <Trash2 size={16} />
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
+  if (!isOpen) return null;
 
-      {/* Footer with Settings */}
-      <div className="p-4 border-t border-slate-700/50">
-        <div className="mb-4">
-          <label className="block text-slate-300 text-xs font-medium mb-2">
-            N8N Webhook URL
-          </label>
-          <input
-            type="text"
-            value={n8nWebhookUrl}
-            onChange={(e) => onWebhookUrlChange(e.target.value)}
-            className="w-full bg-slate-700/50 text-white text-xs p-2 rounded border border-slate-600/50 focus:border-blue-500 focus:outline-none"
-            placeholder="https://your-n8n-instance.com/webhook/chat"
-          />
+  const getAgentForSession = (agentId?: string) => {
+    return agents.find((a) => a.id === agentId);
+  };
+
+  const handleSelectSession = (sessionId: string) => {
+    onSwitchSession(sessionId);
+    onClose();
+  };
+
+  const handleCreateNew = () => {
+    onCreateNewSession();
+    onClose();
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex justify-start">
+      {/* Backdrop */}
+      <div
+        className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
+        onClick={onClose}
+      />
+
+      {/* Drawer */}
+      <div className="relative w-full max-w-xs sm:max-w-sm bg-slate-900/95 backdrop-blur-md border-r border-slate-700/60 shadow-2xl h-full flex flex-col z-10 text-right">
+        {/* Header */}
+        <div className="p-4 sm:p-5 border-b border-slate-700/60">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-bold text-white flex items-center gap-2">
+              <MessageSquare className="text-blue-400" size={20} />
+              היסטוריית שיחות
+            </h2>
+            <button
+              onClick={onClose}
+              className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+              title="סגור היסטוריה"
+            >
+              <X size={18} />
+            </button>
+          </div>
+
+          <button
+            onClick={handleCreateNew}
+            className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white py-2.5 px-4 rounded-xl font-medium transition-all duration-200 flex items-center justify-center gap-2 shadow-md active:scale-98 text-sm"
+          >
+            <Plus size={18} />
+            <span>שיחה חדשה</span>
+          </button>
         </div>
-        <button
-          onClick={onExportChat}
-          disabled={!hasMessages}
-          className="w-full bg-slate-700 text-white py-2 px-4 rounded-lg hover:bg-slate-600 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-sm"
-        >
-          <Download size={16} />
-          Export Chat
-        </button>
+
+        {/* Sessions List */}
+        <div className="flex-1 overflow-y-auto p-3 space-y-2">
+          {chatSessions.length === 0 ? (
+            <div className="text-center py-10 text-slate-400 text-xs">
+              אין עדיין שיחות בהיסטוריה
+            </div>
+          ) : (
+            chatSessions.map((session) => {
+              const isSelected = currentSessionId === session.id;
+              const sessionAgent = getAgentForSession(session.agentId);
+
+              return (
+                <div
+                  key={session.id}
+                  onClick={() => handleSelectSession(session.id)}
+                  className={`p-3 rounded-xl cursor-pointer transition-all group relative border ${
+                    isSelected
+                      ? "bg-blue-600/20 border-blue-500/40 text-white shadow-sm"
+                      : "bg-slate-800/40 hover:bg-slate-800/80 border-slate-700/40 text-slate-200"
+                  }`}
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs sm:text-sm font-semibold truncate leading-snug">
+                        {session.title || "שיחה ללא כותרת"}
+                      </p>
+
+                      <div className="flex items-center gap-2 mt-1.5 text-[10px] text-slate-400">
+                        <span className="flex items-center gap-1">
+                          <Clock size={11} />
+                          {new Date(session.lastUpdated).toLocaleDateString("he-IL", {
+                            day: "numeric",
+                            month: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
+                        </span>
+
+                        {sessionAgent && (
+                          <span
+                            className={`px-1.5 py-0.5 rounded-md text-[9px] font-medium bg-slate-700/80 text-blue-300 border border-slate-600/50 flex items-center gap-1`}
+                          >
+                            <Sparkles size={9} />
+                            {sessionAgent.name}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onDeleteSession(session.id);
+                      }}
+                      className="opacity-60 group-hover:opacity-100 text-slate-400 hover:text-red-400 p-1.5 rounded-lg hover:bg-slate-700/60 transition-all"
+                      title="מחק שיחה"
+                    >
+                      <Trash2 size={15} />
+                    </button>
+                  </div>
+                </div>
+              );
+            })
+          )}
+        </div>
+
+        {/* Footer */}
+        <div className="p-4 border-t border-slate-700/60 bg-slate-900/60">
+          <button
+            onClick={() => {
+              onExportChat();
+              onClose();
+            }}
+            disabled={!hasMessages}
+            className="w-full bg-slate-800 hover:bg-slate-700 text-white py-2 px-3 rounded-xl transition-colors duration-200 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-xs font-medium border border-slate-700"
+          >
+            <Download size={15} />
+            <span>ייצא שיחה נוכחית (JSON)</span>
+          </button>
+        </div>
       </div>
     </div>
   );
