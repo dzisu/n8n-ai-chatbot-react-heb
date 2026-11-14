@@ -1,0 +1,14 @@
+{
+  "projects": {
+    "default": "gen-lang-client-0869839603"
+  },
+  "targets": {
+    "gen-lang-client-0869839603": {
+      "hosting": {
+        "n8n-ai-chatbot-heb": [
+          "n8n-ai-chatbot-heb"
+        ]
+      }
+    }
+  }
+}
