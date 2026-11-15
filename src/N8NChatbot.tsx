@@ -45,10 +45,35 @@ const N8NChatbot: React.FC = () => {
     StorageService.loadCurrentUser()
   );
 
+  // Subscribe to real-time Firestore users updates
+  useEffect(() => {
+    const unsub = StorageService.subscribeToUsers((fetched) => {
+      setUsers(fetched);
+      setCurrentUser((curr) => {
+        if (!curr) return null;
+        const fresh = fetched.find((u) => u.id === curr.id);
+        if (fresh) {
+          StorageService.saveCurrentUser(fresh);
+          return fresh;
+        }
+        return curr;
+      });
+    });
+    return () => unsub();
+  }, []);
+
   // Agents State
   const [agents, setAgents] = useState<Agent[]>(() =>
     StorageService.loadAgents()
   );
+
+  // Subscribe to real-time Firestore agents updates
+  useEffect(() => {
+    const unsub = StorageService.subscribeToAgents((fetched) => {
+      setAgents(fetched);
+    });
+    return () => unsub();
+  }, []);
 
   // Calculate visible agents based on login status and role
   const visibleAgents = useMemo(() => {
@@ -100,8 +125,6 @@ const N8NChatbot: React.FC = () => {
     unarchiveSession,
     archiveAllSessions,
     deleteSession,
-    clearAllSessions,
-    clearAgentSessions,
     updateMessages,
     saveCurrentSession,
   } = useChatSessions(activeAgent?.id || "shuki");
@@ -167,15 +190,15 @@ const N8NChatbot: React.FC = () => {
   };
 
   // User Management Handlers
-  const handleSaveUser = (user: User) => {
+  const handleSaveUser = async (user: User) => {
     setUsers((prev) => {
       const exists = prev.some((u) => u.id === user.id);
       const updated = exists
         ? prev.map((u) => (u.id === user.id ? user : u))
         : [...prev, user];
-      StorageService.saveUsers(updated);
       return updated;
     });
+    await StorageService.saveUser(user);
 
     if (currentUser?.id === user.id) {
       setCurrentUser(user);
@@ -183,12 +206,9 @@ const N8NChatbot: React.FC = () => {
     }
   };
 
-  const handleDeleteUser = (userId: string) => {
-    setUsers((prev) => {
-      const updated = prev.filter((u) => u.id !== userId);
-      StorageService.saveUsers(updated);
-      return updated;
-    });
+  const handleDeleteUser = async (userId: string) => {
+    setUsers((prev) => prev.filter((u) => u.id !== userId));
+    await StorageService.deleteUser(userId);
   };
 
   // If active session changes, sync active agent if session has one
@@ -220,24 +240,21 @@ const N8NChatbot: React.FC = () => {
     createNewSession(agentId);
   };
 
-  const handleSaveAgent = (agent: Agent) => {
+  const handleSaveAgent = async (agent: Agent) => {
     setAgents((prev) => {
       const exists = prev.some((a) => a.id === agent.id);
       const updated = exists
         ? prev.map((a) => (a.id === agent.id ? agent : a))
         : [...prev, agent];
-      StorageService.saveAgents(updated);
       return updated;
     });
+    await StorageService.saveAgent(agent);
     setActiveAgentId(agent.id);
   };
 
-  const handleDeleteAgent = (agentId: string) => {
-    setAgents((prev) => {
-      const updated = prev.filter((a) => a.id !== agentId);
-      StorageService.saveAgents(updated);
-      return updated;
-    });
+  const handleDeleteAgent = async (agentId: string) => {
+    setAgents((prev) => prev.filter((a) => a.id !== agentId));
+    await StorageService.deleteAgent(agentId);
 
     if (activeAgentId === agentId) {
       const fallback = visibleAgents.find((a) => a.id !== agentId) || visibleAgents[0];

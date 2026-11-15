@@ -45,6 +45,7 @@ export interface ChatSession {
   createdAt: Date;
   lastUpdated: Date;
   isArchived?: boolean;
+  userId?: string;
 }
 
 export interface N8NWebhookPayload {

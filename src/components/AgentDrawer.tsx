@@ -7,7 +7,6 @@ import {
   Trash2,
   Globe,
   Settings2,
-  AlertTriangle,
   ExternalLink,
   LogOut,
 } from "lucide-react";

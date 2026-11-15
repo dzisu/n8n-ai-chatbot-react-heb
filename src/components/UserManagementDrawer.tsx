@@ -5,14 +5,12 @@ import {
   UserPlus,
   Trash2,
   Edit2,
-  Check,
   Shield,
   User as UserIcon,
   Mail,
   Key,
   CheckSquare,
   Square,
-  Users,
 } from "lucide-react";
 import { User, Agent } from "../types/chat";
 import { DynamicLucideIcon } from "./DynamicLucideIcon";

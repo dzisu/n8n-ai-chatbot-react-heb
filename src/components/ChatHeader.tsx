@@ -23,7 +23,7 @@ interface ChatHeaderProps {
 }
 
 export const ChatHeader: React.FC<ChatHeaderProps> = ({
-  activeAgent,
+  activeAgent: _activeAgent,
   currentUser,
   onOpenHistory,
   onOpenAgents,
