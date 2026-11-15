@@ -1,51 +1,117 @@
 import React, { useState } from "react";
-import { X, LogIn, Lock, User as UserIcon, Shield, AlertCircle, LogOut } from "lucide-react";
+import {
+  X,
+  LogIn,
+  Lock,
+  Mail,
+  User as UserIcon,
+  Shield,
+  AlertCircle,
+  LogOut,
+  UserPlus,
+  Loader2,
+} from "lucide-react";
 import { User } from "../types/chat";
+import { auth } from "../services/firebase";
+import {
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signOut,
+  updateProfile,
+} from "firebase/auth";
 
 interface LoginModalProps {
   isOpen: boolean;
   onClose: () => void;
-  users: User[];
   currentUser: User | null;
-  onLoginSuccess: (user: User) => void;
   onLogout: () => void;
 }
 
 export const LoginModal: React.FC<LoginModalProps> = ({
   isOpen,
   onClose,
-  users,
   currentUser,
-  onLoginSuccess,
   onLogout,
 }) => {
-  const [username, setUsername] = useState("");
+  const [isRegisterMode, setIsRegisterMode] = useState(false);
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [displayName, setDisplayName] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
-    const cleanUser = username.trim().toLowerCase();
-    const found = users.find(
-      (u) => u.username.toLowerCase() === cleanUser && u.password === password
-    );
-
-    if (!found) {
-      setError("שם משתמש או סיסמה שגויים. אנא נסה שוב.");
+    if (!auth) {
+      setError("שירות Firebase Auth אינו מוגדר או אינו זמין.");
       return;
     }
 
-    onLoginSuccess(found);
-    setUsername("");
-    setPassword("");
-    onClose();
+    const cleanEmail = email.trim();
+    if (!cleanEmail || !password) {
+      setError("נא להזין כתובת אימייל וסיסמה.");
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      if (isRegisterMode) {
+        const userCred = await createUserWithEmailAndPassword(
+          auth,
+          cleanEmail,
+          password
+        );
+        if (displayName.trim()) {
+          await updateProfile(userCred.user, {
+            displayName: displayName.trim(),
+          });
+        }
+      } else {
+        await signInWithEmailAndPassword(auth, cleanEmail, password);
+      }
+
+      setEmail("");
+      setPassword("");
+      setDisplayName("");
+      onClose();
+    } catch (err: any) {
+      console.error("Auth error:", err);
+      const code = err?.code || "";
+      if (
+        code === "auth/invalid-credential" ||
+        code === "auth/wrong-password" ||
+        code === "auth/user-not-found"
+      ) {
+        setError("כתובת אימייל או סיסמה שגויות.");
+      } else if (code === "auth/email-already-in-use") {
+        setError("כתובת אימייל זו כבר רשומה במערכת. נסה להתחבר.");
+      } else if (code === "auth/weak-password") {
+        setError("הסיסמה קצרה מדי (נדרשים לפחות 6 תווים).");
+      } else if (code === "auth/invalid-email") {
+        setError("כתובת אימייל אינה תקינה.");
+      } else if (code === "auth/too-many-requests") {
+        setError("בוצעו ניסיונות התחברות רבים מדי. נסה שוב מאוחר יותר.");
+      } else {
+        setError("חלה שגיאה בהתחברות למערכת. בדוק את החיבור ונסה שוב.");
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  const handleLogoutClick = () => {
+  const handleLogoutClick = async () => {
+    try {
+      if (auth) {
+        await signOut(auth);
+      }
+    } catch (err) {
+      console.warn("Sign out error:", err);
+    }
     onLogout();
     onClose();
   };
@@ -75,12 +141,18 @@ export const LoginModal: React.FC<LoginModalProps> = ({
             <Lock size={22} />
           </div>
           <h2 className="text-lg font-bold text-slate-800 dark:text-white">
-            {currentUser ? "פרטי משתמש מחובר" : "התחברות למערכת"}
+            {currentUser
+              ? "פרטי משתמש מחובר"
+              : isRegisterMode
+              ? "יצירת חשבון מאובטח"
+              : "התחברות למערכת"}
           </h2>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
             {currentUser
-              ? "אתה מחובר כעת למערכת"
-              : "הזן שם משתמש וסיסמה כדי לקבל גישה לסוכנים"}
+              ? "אתה מחובר כעת באמצעות Firebase Auth"
+              : isRegisterMode
+              ? "הרשם עם כתובת האימייל שלך לגישה מאובטחת"
+              : "התחבר באמצעות אימייל וסיסמה"}
           </p>
         </div>
 
@@ -89,11 +161,15 @@ export const LoginModal: React.FC<LoginModalProps> = ({
           <div className="space-y-4">
             <div className="p-3.5 bg-slate-50 dark:bg-slate-800/80 rounded-xl border border-slate-200 dark:border-slate-700/60 flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-300 flex items-center justify-center font-bold">
-                {currentUser.role === "admin" ? <Shield size={20} /> : <UserIcon size={20} />}
+                {currentUser.role === "admin" ? (
+                  <Shield size={20} />
+                ) : (
+                  <UserIcon size={20} />
+                )}
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
-                  <span className="font-bold text-slate-800 dark:text-white text-sm">
+                  <span className="font-bold text-slate-800 dark:text-white text-sm truncate">
                     {currentUser.username}
                   </span>
                   <span
@@ -103,11 +179,16 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                         : "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300 border border-blue-500/30"
                     }`}
                   >
-                    {currentUser.role === "admin" ? "מנהל מערכת (Admin)" : "משתמש"}
+                    {currentUser.role === "admin"
+                      ? "מנהל מערכת (Admin)"
+                      : "משתמש"}
                   </span>
                 </div>
                 {currentUser.email && (
-                  <p className="text-xs text-slate-500 dark:text-slate-400 truncate mt-0.5">
+                  <p
+                    className="text-xs text-slate-500 dark:text-slate-400 truncate mt-0.5 font-mono"
+                    dir="ltr"
+                  >
                     {currentUser.email}
                   </p>
                 )}
@@ -133,7 +214,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
             </div>
           </div>
         ) : (
-          /* Login Form */
+          /* Login / Register Form */
           <form onSubmit={handleSubmit} className="space-y-3.5">
             {error && (
               <div className="p-2.5 bg-red-50 dark:bg-red-950/50 border border-red-200 dark:border-red-800/60 rounded-xl flex items-center gap-2 text-red-600 dark:text-red-400 text-xs">
@@ -142,21 +223,43 @@ export const LoginModal: React.FC<LoginModalProps> = ({
               </div>
             )}
 
+            {isRegisterMode && (
+              <div>
+                <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+                  שם מלא / כינוי
+                </label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={displayName}
+                    onChange={(e) => setDisplayName(e.target.value)}
+                    placeholder="למשל: תומר זיסו"
+                    className="w-full bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white text-xs sm:text-sm p-2.5 pr-9 rounded-xl border border-slate-300 dark:border-slate-700 focus:border-blue-500 focus:outline-none"
+                  />
+                  <UserIcon
+                    size={16}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
+                  />
+                </div>
+              </div>
+            )}
+
             <div>
               <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
-                שם משתמש
+                כתובת אימייל (Email)
               </label>
               <div className="relative">
                 <input
-                  type="text"
+                  type="email"
                   required
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  placeholder="למשל: admin או tomer"
-                  className="w-full bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white text-xs sm:text-sm p-2.5 pr-9 rounded-xl border border-slate-300 dark:border-slate-700 focus:border-blue-500 focus:outline-none"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="name@example.com"
+                  className="w-full bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white text-xs sm:text-sm p-2.5 pr-9 rounded-xl border border-slate-300 dark:border-slate-700 focus:border-blue-500 focus:outline-none font-mono"
+                  dir="ltr"
                   autoFocus
                 />
-                <UserIcon
+                <Mail
                   size={16}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
                 />
@@ -173,8 +276,9 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="הזן סיסמה..."
-                  className="w-full bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white text-xs sm:text-sm p-2.5 pr-9 rounded-xl border border-slate-300 dark:border-slate-700 focus:border-blue-500 focus:outline-none"
+                  placeholder="לפחות 6 תווים..."
+                  className="w-full bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white text-xs sm:text-sm p-2.5 pr-9 rounded-xl border border-slate-300 dark:border-slate-700 focus:border-blue-500 focus:outline-none font-mono"
+                  dir="ltr"
                 />
                 <Lock
                   size={16}
@@ -185,16 +289,40 @@ export const LoginModal: React.FC<LoginModalProps> = ({
 
             <button
               type="submit"
-              className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white py-2.5 px-4 rounded-xl font-medium text-xs sm:text-sm flex items-center justify-center gap-1.5 transition-all shadow-md active:scale-98 mt-2"
+              disabled={isSubmitting}
+              className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white py-2.5 px-4 rounded-xl font-medium text-xs sm:text-sm flex items-center justify-center gap-1.5 transition-all shadow-md active:scale-98 mt-2 disabled:opacity-50"
             >
-              <LogIn size={16} />
-              <span>התחבר למערכת</span>
+              {isSubmitting ? (
+                <>
+                  <Loader2 size={16} className="animate-spin" />
+                  <span>מעבד בקשה...</span>
+                </>
+              ) : isRegisterMode ? (
+                <>
+                  <UserPlus size={16} />
+                  <span>צור חשבון והתחבר</span>
+                </>
+              ) : (
+                <>
+                  <LogIn size={16} />
+                  <span>התחבר למערכת</span>
+                </>
+              )}
             </button>
 
-            <div className="pt-2 text-center border-t border-slate-200 dark:border-slate-800">
-              <p className="text-[11px] text-slate-400 dark:text-slate-500 leading-relaxed">
-                כניסת מנהל ברירת מחדל: <strong className="text-slate-600 dark:text-slate-300 font-mono">admin</strong> / סיסמה: <strong className="text-slate-600 dark:text-slate-300 font-mono">admin</strong>
-              </p>
+            <div className="pt-3 text-center border-t border-slate-200 dark:border-slate-800">
+              <button
+                type="button"
+                onClick={() => {
+                  setError(null);
+                  setIsRegisterMode(!isRegisterMode);
+                }}
+                className="text-xs text-blue-600 dark:text-blue-400 hover:underline font-medium"
+              >
+                {isRegisterMode
+                  ? "כבר יש לך חשבון? לחץ כאן להתחברות"
+                  : "משתמש חדש? לחץ כאן לפתיחת חשבון"}
+              </button>
             </div>
           </form>
         )}

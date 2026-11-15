@@ -18,7 +18,7 @@ export const useChat = (
     if ((!content.trim() && !attachment) || isLoading) return;
 
     const userMessage: Message = {
-      id: Date.now().toString(),
+      id: crypto.randomUUID(),
       content: content.trim(),
       sender: "user",
       timestamp: new Date(),
@@ -43,7 +43,7 @@ export const useChat = (
       const data = await n8nService.sendMessage(payload, webhookUrl);
 
       const botMessage: Message = {
-        id: (Date.now() + 1).toString(),
+        id: crypto.randomUUID(),
         content:
           data.response ||
           data.message ||
@@ -61,15 +61,20 @@ export const useChat = (
     } catch (error) {
       console.error("Error sending message to n8n:", error);
 
+      // Clean, user-friendly error message without leaking technical internals or stack traces
       let errorContent =
-        "לא ניתן להתחבר לסוכן כרגע. אנא ודא שכתובת ה-Webhook בהגדרות הסוכן נכונה וזמינה.";
+        "חלה תקלה זמנית בעיבוד הבקשה מול הסוכן. אנא נסה שוב בעוד רגע.";
 
       if (error instanceof Error) {
-        errorContent = error.message;
+        if (error.name === "AbortError" || error.message.includes("Timeout") || error.message.includes("2 דקות")) {
+          errorContent = "זמן ההמתנה עבר (Timeout) - הסוכן לא השיב בתוך 2 דקות. נסה שוב.";
+        } else if (error.message.includes("Webhook של הסוכן טרם הוגדרה")) {
+          errorContent = error.message;
+        }
       }
 
       const errorMessage: Message = {
-        id: (Date.now() + 1).toString(),
+        id: crypto.randomUUID(),
         content: errorContent,
         sender: "bot",
         timestamp: new Date(),

@@ -4,8 +4,10 @@ import { StorageService } from "../services/storageService";
 
 export const useChatSessions = (
   initialAgentId: string = "shuki",
-  isLoggedIn: boolean = false
+  ownerUid?: string | null
 ) => {
+  const isLoggedIn = Boolean(ownerUid);
+
   const [chatSessions, setChatSessions] = useState<ChatSession[]>(() =>
     isLoggedIn ? StorageService.loadSessions() : []
   );
@@ -17,20 +19,22 @@ export const useChatSessions = (
 
   // Initial setup from local cache
   useEffect(() => {
-    if (!isLoggedIn) {
+    if (!isLoggedIn || !ownerUid) {
       setChatSessions([]);
       setCurrentSessionId(null);
       setMessages([]);
       return;
     }
 
-    const savedSessions = StorageService.loadSessions();
+    const savedSessions = StorageService.loadSessions().filter(
+      (s) => s.ownerUid === ownerUid || !s.ownerUid
+    );
     setChatSessions(savedSessions);
 
     const activeSessions = savedSessions.filter((s) => !s.isArchived);
 
     if (activeSessions.length === 0) {
-      const initialId = Date.now().toString();
+      const initialId = crypto.randomUUID();
       const newSession: ChatSession = {
         id: initialId,
         title: "שיחה חדשה",
@@ -39,12 +43,14 @@ export const useChatSessions = (
         createdAt: new Date(),
         lastUpdated: new Date(),
         isArchived: false,
+        ownerUid,
+        userId: ownerUid,
       };
       const initialList = [newSession, ...savedSessions];
       setChatSessions(initialList);
       setCurrentSessionId(initialId);
       setMessages([]);
-      StorageService.saveSession(newSession);
+      StorageService.saveSession(newSession, ownerUid);
     } else {
       const matching =
         activeSessions.find((s) => s.agentId === initialAgentId) ||
@@ -52,13 +58,13 @@ export const useChatSessions = (
       setCurrentSessionId(matching.id);
       setMessages(matching.messages);
     }
-  }, [initialAgentId, isLoggedIn]);
+  }, [initialAgentId, isLoggedIn, ownerUid]);
 
-  // Real-time Firestore sync across devices
+  // Real-time Firestore sync strictly scoped to ownerUid
   useEffect(() => {
-    if (!isLoggedIn) return;
+    if (!isLoggedIn || !ownerUid) return;
 
-    const unsubscribe = StorageService.subscribeToSessions((fetched) => {
+    const unsubscribe = StorageService.subscribeToSessions(ownerUid, (fetched) => {
       if (isLocalUpdateRef.current) {
         // Skip updating messages if this update originated locally
         isLocalUpdateRef.current = false;
@@ -84,16 +90,18 @@ export const useChatSessions = (
           }
           return prev;
         });
+      } else {
+        setChatSessions([]);
       }
     });
 
     return () => unsubscribe();
-  }, [initialAgentId, isLoggedIn]);
+  }, [initialAgentId, isLoggedIn, ownerUid]);
 
   const createNewSession = useCallback(
     (agentId?: string): string => {
       isLocalUpdateRef.current = true;
-      const newId = Date.now().toString();
+      const newId = crypto.randomUUID();
       const targetAgentId = agentId || initialAgentId;
       const newSession: ChatSession = {
         id: newId,
@@ -103,6 +111,8 @@ export const useChatSessions = (
         createdAt: new Date(),
         lastUpdated: new Date(),
         isArchived: false,
+        ownerUid: ownerUid || undefined,
+        userId: ownerUid || undefined,
       };
 
       setChatSessions((prev) => {
@@ -110,7 +120,7 @@ export const useChatSessions = (
           (s) => s.isArchived || s.messages.length > 0
         );
         const updated = [newSession, ...cleaned];
-        StorageService.saveSession(newSession);
+        StorageService.saveSession(newSession, ownerUid || undefined);
         return updated;
       });
 
@@ -118,7 +128,7 @@ export const useChatSessions = (
       setMessages([]);
       return newId;
     },
-    [initialAgentId]
+    [initialAgentId, ownerUid]
   );
 
   const saveCurrentSession = useCallback((): void => {
@@ -127,8 +137,14 @@ export const useChatSessions = (
     setChatSessions((prev) => {
       const target = prev.find((s) => s.id === currentSessionId);
       if (target) {
-        const updatedTarget = { ...target, messages, lastUpdated: new Date() };
-        StorageService.saveSession(updatedTarget);
+        const updatedTarget = {
+          ...target,
+          messages,
+          lastUpdated: new Date(),
+          ownerUid: ownerUid || target.ownerUid,
+          userId: ownerUid || target.userId,
+        };
+        StorageService.saveSession(updatedTarget, ownerUid || undefined);
       }
       return prev.map((session) =>
         session.id === currentSessionId
@@ -136,11 +152,13 @@ export const useChatSessions = (
               ...session,
               messages,
               lastUpdated: new Date(),
+              ownerUid: ownerUid || session.ownerUid,
+              userId: ownerUid || session.userId,
             }
           : session
       );
     });
-  }, [currentSessionId, messages]);
+  }, [currentSessionId, messages, ownerUid]);
 
   const switchSession = useCallback(
     (sessionId: string): ChatSession | undefined => {
@@ -175,7 +193,7 @@ export const useChatSessions = (
         const updated = prev.map((s) => {
           if (s.id === sessionId) {
             const modified = { ...s, title: trimmed, lastUpdated: new Date() };
-            StorageService.saveSession(modified);
+            StorageService.saveSession(modified, ownerUid || undefined);
             return modified;
           }
           return s;
@@ -183,7 +201,7 @@ export const useChatSessions = (
         return updated;
       });
     },
-    []
+    [ownerUid]
   );
 
   const archiveSession = useCallback(
@@ -193,7 +211,7 @@ export const useChatSessions = (
         const updated = prev.map((s) => {
           if (s.id === sessionId) {
             const modified = { ...s, isArchived: true, lastUpdated: new Date() };
-            StorageService.saveSession(modified);
+            StorageService.saveSession(modified, ownerUid || undefined);
             return modified;
           }
           return s;
@@ -205,7 +223,7 @@ export const useChatSessions = (
             setCurrentSessionId(remainingActive[0].id);
             setMessages(remainingActive[0].messages);
           } else {
-            const newId = Date.now().toString();
+            const newId = crypto.randomUUID();
             const freshSession: ChatSession = {
               id: newId,
               title: "שיחה חדשה",
@@ -214,9 +232,11 @@ export const useChatSessions = (
               createdAt: new Date(),
               lastUpdated: new Date(),
               isArchived: false,
+              ownerUid: ownerUid || undefined,
+              userId: ownerUid || undefined,
             };
             const nextSessions = [freshSession, ...updated];
-            StorageService.saveSession(freshSession);
+            StorageService.saveSession(freshSession, ownerUid || undefined);
             setCurrentSessionId(newId);
             setMessages([]);
             return nextSessions;
@@ -226,7 +246,7 @@ export const useChatSessions = (
         return updated;
       });
     },
-    [currentSessionId, initialAgentId]
+    [currentSessionId, initialAgentId, ownerUid]
   );
 
   const unarchiveSession = useCallback(
@@ -236,7 +256,7 @@ export const useChatSessions = (
         const updated = prev.map((s) => {
           if (s.id === sessionId) {
             const modified = { ...s, isArchived: false, lastUpdated: new Date() };
-            StorageService.saveSession(modified);
+            StorageService.saveSession(modified, ownerUid || undefined);
             return modified;
           }
           return s;
@@ -244,7 +264,7 @@ export const useChatSessions = (
         return updated;
       });
     },
-    []
+    [ownerUid]
   );
 
   const archiveAllSessions = useCallback(
@@ -256,7 +276,7 @@ export const useChatSessions = (
             if (!agentId || s.agentId === agentId) {
               if (s.messages.length > 0) {
                 const modified = { ...s, isArchived: true, lastUpdated: new Date() };
-                StorageService.saveSession(modified);
+                StorageService.saveSession(modified, ownerUid || undefined);
                 return modified;
               }
             }
@@ -268,7 +288,7 @@ export const useChatSessions = (
           (s) => s.isArchived || s.messages.length > 0
         );
 
-        const newId = Date.now().toString();
+        const newId = crypto.randomUUID();
         const freshSession: ChatSession = {
           id: newId,
           title: "שיחה חדשה",
@@ -277,16 +297,18 @@ export const useChatSessions = (
           createdAt: new Date(),
           lastUpdated: new Date(),
           isArchived: false,
+          ownerUid: ownerUid || undefined,
+          userId: ownerUid || undefined,
         };
 
         const finalSessions = [freshSession, ...cleaned];
-        StorageService.saveSession(freshSession);
+        StorageService.saveSession(freshSession, ownerUid || undefined);
         setCurrentSessionId(newId);
         setMessages([]);
         return finalSessions;
       });
     },
-    [initialAgentId]
+    [initialAgentId, ownerUid]
   );
 
   const deleteSession = useCallback(
@@ -302,7 +324,7 @@ export const useChatSessions = (
             setCurrentSessionId(activeSessions[0].id);
             setMessages(activeSessions[0].messages);
           } else {
-            const newId = Date.now().toString();
+            const newId = crypto.randomUUID();
             const emptySession: ChatSession = {
               id: newId,
               title: "שיחה חדשה",
@@ -311,9 +333,11 @@ export const useChatSessions = (
               createdAt: new Date(),
               lastUpdated: new Date(),
               isArchived: false,
+              ownerUid: ownerUid || undefined,
+              userId: ownerUid || undefined,
             };
             const nextList = [emptySession, ...filtered];
-            StorageService.saveSession(emptySession);
+            StorageService.saveSession(emptySession, ownerUid || undefined);
             setCurrentSessionId(newId);
             setMessages([]);
             return nextList;
@@ -322,7 +346,7 @@ export const useChatSessions = (
         return filtered;
       });
     },
-    [currentSessionId, initialAgentId]
+    [currentSessionId, initialAgentId, ownerUid]
   );
 
   const updateMessages = useCallback(
@@ -350,15 +374,17 @@ export const useChatSessions = (
               messages: newMessages,
               lastUpdated: new Date(),
               title,
+              ownerUid: ownerUid || session.ownerUid,
+              userId: ownerUid || session.userId,
             };
-            StorageService.saveSession(updatedSession);
+            StorageService.saveSession(updatedSession, ownerUid || undefined);
             return updatedSession;
           });
           return updated;
         });
       }
     },
-    [currentSessionId]
+    [currentSessionId, ownerUid]
   );
 
   const clearAllSessions = useCallback(

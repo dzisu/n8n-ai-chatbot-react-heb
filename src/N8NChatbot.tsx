@@ -1,17 +1,29 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, Suspense, lazy } from "react";
 import { ChatSidebar } from "./components/ChatSidebar";
 import { ChatHeader } from "./components/ChatHeader";
 import { ChatMessages } from "./components/ChatMessages";
 import { ChatInput } from "./components/ChatInput";
-import { AgentDrawer } from "./components/AgentDrawer";
-import { UserManagementDrawer } from "./components/UserManagementDrawer";
-import { LoginModal } from "./components/LoginModal";
 import { OpeningScreen } from "./components/OpeningScreen";
 import { useChatSessions } from "./hooks/useChatSessions";
 import { useChat } from "./hooks/useChat";
 import { N8NService } from "./services/n8nService";
 import { StorageService } from "./services/storageService";
+import { auth } from "./services/firebase";
+import { onAuthStateChanged } from "firebase/auth";
 import { Agent, User } from "./types/chat";
+
+// Code Splitting - Lazy load heavy drawers & modals to optimize initial bundle size
+const AgentDrawer = lazy(() =>
+  import("./components/AgentDrawer").then((m) => ({ default: m.AgentDrawer }))
+);
+const UserManagementDrawer = lazy(() =>
+  import("./components/UserManagementDrawer").then((m) => ({
+    default: m.UserManagementDrawer,
+  }))
+);
+const LoginModal = lazy(() =>
+  import("./components/LoginModal").then((m) => ({ default: m.LoginModal }))
+);
 
 const N8NChatbot: React.FC = () => {
   // Theme state - Default is dark
@@ -39,15 +51,35 @@ const N8NChatbot: React.FC = () => {
   }, [theme]);
 
   // Users & Authentication State
-  const [users, setUsers] = useState<User[]>(() =>
-    StorageService.loadUsers()
-  );
+  const [users, setUsers] = useState<User[]>([]);
   const [currentUser, setCurrentUser] = useState<User | null>(() =>
     StorageService.loadCurrentUser()
   );
 
+  // Subscribe to Firebase Auth state
+  useEffect(() => {
+    if (!auth) return;
+
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      if (firebaseUser) {
+        const profile = await StorageService.syncUserProfile(firebaseUser);
+        setCurrentUser(profile);
+      } else {
+        setCurrentUser(null);
+        StorageService.saveCurrentUser(null);
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
+
   // Subscribe to real-time Firestore users updates
   useEffect(() => {
+    if (!currentUser) {
+      setUsers([]);
+      return;
+    }
+
     const unsub = StorageService.subscribeToUsers((fetched) => {
       setUsers(fetched);
       setCurrentUser((curr) => {
@@ -61,7 +93,7 @@ const N8NChatbot: React.FC = () => {
       });
     });
     return () => unsub();
-  }, []);
+  }, [currentUser?.id]);
 
   // Agents State
   const [agents, setAgents] = useState<Agent[]>(() =>
@@ -85,8 +117,7 @@ const N8NChatbot: React.FC = () => {
   }, [agents, currentUser]);
 
   const [activeAgentId, setActiveAgentId] = useState<string>(() => {
-    const saved = StorageService.loadActiveAgentId("shuki");
-    return saved;
+    return StorageService.loadActiveAgentId("shuki");
   });
 
   // Keep activeAgentId valid among visible agents
@@ -110,10 +141,12 @@ const N8NChatbot: React.FC = () => {
   // Find active agent object
   const activeAgent = useMemo(() => {
     if (!currentUser || visibleAgents.length === 0) return undefined;
-    return visibleAgents.find((a) => a.id === activeAgentId) || visibleAgents[0];
+    return (
+      visibleAgents.find((a) => a.id === activeAgentId) || visibleAgents[0]
+    );
   }, [currentUser, visibleAgents, activeAgentId]);
 
-  // Chat sessions - only loaded/synced when user is logged in
+  // Chat sessions strictly bound and scoped to current user UID
   const {
     chatSessions,
     currentSessionId,
@@ -128,7 +161,7 @@ const N8NChatbot: React.FC = () => {
     deleteSession,
     updateMessages,
     saveCurrentSession,
-  } = useChatSessions(activeAgent?.id || "shuki", !!currentUser);
+  } = useChatSessions(activeAgent?.id || "shuki", currentUser?.id);
 
   // Visible sessions for the current user
   const visibleSessions = useMemo(() => {
@@ -165,23 +198,6 @@ const N8NChatbot: React.FC = () => {
     };
   }, [saveCurrentSession]);
 
-  // Authentication Handlers
-  const handleLoginSuccess = (user: User) => {
-    setCurrentUser(user);
-    StorageService.saveCurrentUser(user);
-    setIsLoginOpen(false);
-
-    const allowed =
-      user.role === "admin"
-        ? agents
-        : agents.filter((a) => (user.allowedAgentIds || []).includes(a.id));
-
-    if (allowed.length > 0) {
-      setActiveAgentId(allowed[0].id);
-      createNewSession(allowed[0].id);
-    }
-  };
-
   const handleLogout = () => {
     setCurrentUser(null);
     StorageService.saveCurrentUser(null);
@@ -190,7 +206,7 @@ const N8NChatbot: React.FC = () => {
     setIsUserManagementOpen(false);
   };
 
-  // User Management Handlers
+  // User Management Handlers (Admin)
   const handleSaveUser = async (user: User) => {
     setUsers((prev) => {
       const exists = prev.some((u) => u.id === user.id);
@@ -258,7 +274,8 @@ const N8NChatbot: React.FC = () => {
     await StorageService.deleteAgent(agentId);
 
     if (activeAgentId === agentId) {
-      const fallback = visibleAgents.find((a) => a.id !== agentId) || visibleAgents[0];
+      const fallback =
+        visibleAgents.find((a) => a.id !== agentId) || visibleAgents[0];
       if (fallback) {
         setActiveAgentId(fallback.id);
       }
@@ -266,7 +283,8 @@ const N8NChatbot: React.FC = () => {
   };
 
   const handleCreateNewSession = (agentId?: string) => {
-    const target = agentId || activeAgent?.id || (visibleAgents[0]?.id || "shuki");
+    const target =
+      agentId || activeAgent?.id || (visibleAgents[0]?.id || "shuki");
     setActiveAgentId(target);
     createNewSession(target);
   };
@@ -295,7 +313,7 @@ const N8NChatbot: React.FC = () => {
           onToggleTheme={toggleTheme}
         />
       ) : (
-        /* Main Chat Area - 100% full screen on mobile by default when logged in */
+        /* Main Chat Area */
         <div className="flex-1 flex flex-col h-full w-full min-w-0 relative">
           <ChatHeader
             activeAgent={activeAgent}
@@ -327,7 +345,7 @@ const N8NChatbot: React.FC = () => {
         </div>
       )}
 
-      {/* History & Archive Drawer - Hidden by default */}
+      {/* History & Archive Drawer */}
       <ChatSidebar
         isOpen={isHistoryOpen}
         onClose={() => setIsHistoryOpen(false)}
@@ -341,44 +359,50 @@ const N8NChatbot: React.FC = () => {
         onRenameSession={renameSession}
         onArchiveSession={archiveSession}
         onUnarchiveSession={unarchiveSession}
-        onArchiveAllHistory={(agentId) => archiveAllSessions(agentId || activeAgent?.id)}
+        onArchiveAllHistory={(agentId) =>
+          archiveAllSessions(agentId || activeAgent?.id)
+        }
         onExportChat={handleExportChat}
         hasMessages={messages.length > 0}
       />
 
-      {/* Agents Drawer - Hidden by default */}
-      <AgentDrawer
-        isOpen={isAgentsOpen}
-        onClose={() => setIsAgentsOpen(false)}
-        agents={visibleAgents}
-        activeAgentId={activeAgentId}
-        currentUser={currentUser}
-        onSelectAgent={handleSelectAgent}
-        onSaveAgent={handleSaveAgent}
-        onDeleteAgent={handleDeleteAgent}
-        onLogout={handleLogout}
-      />
+      {/* Suspended Drawers and Modals for Code Splitting */}
+      <Suspense fallback={null}>
+        {isAgentsOpen && (
+          <AgentDrawer
+            isOpen={isAgentsOpen}
+            onClose={() => setIsAgentsOpen(false)}
+            agents={visibleAgents}
+            activeAgentId={activeAgentId}
+            currentUser={currentUser}
+            onSelectAgent={handleSelectAgent}
+            onSaveAgent={handleSaveAgent}
+            onDeleteAgent={handleDeleteAgent}
+            onLogout={handleLogout}
+          />
+        )}
 
-      {/* User Management Drawer (Admin only) */}
-      <UserManagementDrawer
-        isOpen={isUserManagementOpen}
-        onClose={() => setIsUserManagementOpen(false)}
-        users={users}
-        agents={agents}
-        currentUser={currentUser}
-        onSaveUser={handleSaveUser}
-        onDeleteUser={handleDeleteUser}
-      />
+        {isUserManagementOpen && (
+          <UserManagementDrawer
+            isOpen={isUserManagementOpen}
+            onClose={() => setIsUserManagementOpen(false)}
+            users={users}
+            agents={agents}
+            currentUser={currentUser}
+            onSaveUser={handleSaveUser}
+            onDeleteUser={handleDeleteUser}
+          />
+        )}
 
-      {/* Login Modal */}
-      <LoginModal
-        isOpen={isLoginOpen}
-        onClose={() => setIsLoginOpen(false)}
-        users={users}
-        currentUser={currentUser}
-        onLoginSuccess={handleLoginSuccess}
-        onLogout={handleLogout}
-      />
+        {isLoginOpen && (
+          <LoginModal
+            isOpen={isLoginOpen}
+            onClose={() => setIsLoginOpen(false)}
+            currentUser={currentUser}
+            onLogout={handleLogout}
+          />
+        )}
+      </Suspense>
     </div>
   );
 };

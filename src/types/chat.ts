@@ -1,7 +1,6 @@
 export interface User {
-  id: string;
+  id: string; // Firebase Auth UID
   username: string;
-  password: string;
   email: string;
   role: "admin" | "user";
   allowedAgentIds: string[];
@@ -12,7 +11,7 @@ export interface FileAttachment {
   name: string;
   type: string;
   size: number;
-  dataUrl?: string;
+  dataUrl?: string; // Kept in client memory for upload/preview, stripped before saving to Firestore
   isImage?: boolean;
 }
 
@@ -46,6 +45,7 @@ export interface ChatSession {
   lastUpdated: Date;
   isArchived?: boolean;
   userId?: string;
+  ownerUid?: string; // Firebase Auth UID for session isolation
 }
 
 export interface N8NWebhookPayload {

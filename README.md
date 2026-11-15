@@ -1,207 +1,88 @@
-# N8N AI Chatbot React
+# n8n AI Chatbot React (Hebrew & RTL)
 
-A modern, responsive AI chatbot interface built with React, TypeScript, and Tailwind CSS that integrates with n8n workflows via webhooks.
+ממשק צ'אטבוט AI מתקדם בעברית עם תמיכה מלאה ב-RTL, חיבור מרובה סוכנים מול n8n webhooks, אימות משתמשים מאובטח ב-Firebase Authentication, שמירה וסנכרון בזמן אמת ב-Cloud Firestore, והפרדת הרשאות מלאה.
 
-## Features
+## 🌟 יכולות עיקריות (Key Features)
 
-- 🤖 **AI Integration**: Connect to any AI service through n8n webhooks
-- 💬 **Multi-Session Chat**: Create, manage, and switch between multiple chat sessions
-- 🎨 **Modern UI**: Beautiful gradient design with dark theme
-- 📱 **Responsive**: Works seamlessly on desktop and mobile devices
-- 💾 **Persistent Storage**: Chat sessions are saved in localStorage
-- 📥 **Export Functionality**: Download chat sessions as JSON files
-- ⚡ **Real-time Updates**: Live typing indicators and smooth message flow
-- 🔧 **Configurable**: Easy webhook URL configuration
+- 🔒 **אבטחה ואימות מבוסס Firebase Auth**: התחברות והרשמה מאובטחת במייל וסיסמה, ללא שמירת סיסמאות גלויות ב-Firestore או ב-localStorage.
+- 🛡️ **כללי אבטחה קשיחים ב-Firestore (Security Rules)**: בידוד שיחות מלא לפי מזהה משתמש (`ownerUid`), מניעת גישה של משתמשים לשיחות של אחרים, והגבלת ניהול סוכנים למנהלי מערכת בלבד.
+- 🤖 **ריבוי סוכנים (Multi-Agent Support)**: מעבר מהיר בין סוכנים מוגדרים (שוקי, סופי, מנטור קולנוע, עדנה) עם הגדרת Webhook וערכת צבעים/אייקונים ייחודיים.
+- 💬 **ניהול שיחות וארכיון**: יצירה, עריכת כותרת, חיפוש, ארכוב, שחזור ומחיקה של שיחות עם סנכרון דו-כיווני בזמן אמת בין כל המכשירים.
+- 📎 **קבצים מצורפים מבוקרים**: תמיכה בהעלאת קבצים ותמונות עם שמירת מטא-דאטה בלבד ב-Firestore (שם, סוג, גודל) למניעת חריגה ממגבלת 1MB של מסמכי מסד הנתונים.
+- ⚡ **ביצועים וטעינה מהירה (Code Splitting)**: פיצול חבילות עם `React.lazy` ו-Vite manualChunks להקטנת נפח הטעינה הראשונית והאצת זמני התגובה.
+- 🆔 **מזהים ייחודיים בתקן UUID**: יצירת מזהי שיחות והודעות באמצעות `crypto.randomUUID()`.
+- 🌐 **RTL ועיצוב מודרני**: התאמה מושלמת לשפה העברית, מצב לילה (Dark Mode) ברירת מחדל, ואפשרות החלפה למצב יום.
 
-## Technologies Used
+---
 
-- **React 18** with TypeScript
-- **Vite** for fast development and building
-- **Tailwind CSS** for styling
-- **Lucide React** for icons
-- **N8N** webhook integration
-
-## Project Structure
+## 🏗️ ארכיטקטורת המערכת (Architecture)
 
 ```
-src/
-├── components/          # React components
-│   ├── ChatHeader.tsx   # Header component
-│   ├── ChatInput.tsx    # Message input component
-│   ├── ChatMessages.tsx # Messages display component
-│   ├── ChatSidebar.tsx  # Sidebar with sessions and settings
-│   ├── EmptyState.tsx   # Empty state component
-│   ├── MessageBubble.tsx # Individual message component
-│   └── TypingIndicator.tsx # Typing indicator component
-├── hooks/               # Custom React hooks
-│   ├── useChat.ts       # Chat functionality hook
-│   └── useChatSessions.ts # Session management hook
-├── services/            # Service layer
-│   ├── n8nService.ts    # N8N API integration
-│   └── storageService.ts # Local storage management
-├── types/               # TypeScript type definitions
-│   └── chat.ts          # Chat-related types
-├── N8NChatbot.tsx       # Main application component
-├── main.tsx             # Application entry point
-└── index.css            # Global styles
+Client (React + Vite)
+  │
+  ├── Firebase Authentication ──► ניהול משתמשים מאובטח (Token & Credentials)
+  │
+  ├── Cloud Firestore ──────────► סנכרון שיחות, הודעות ופרופילים בזמן אמת
+  │                               (Rules: ownerUid isolation & Admin RBAC)
+  │
+  └── n8n Webhook API ──────────► ניתוב ישיר לסוכני AI לפי כתובות Webhook
 ```
 
-## Setup Instructions
+### מבנה הנתונים ב-Firestore:
+1. `users/{uid}`: פרופיל משתמש הכולל שם, מייל, תפקיד (`admin` / `user`) ורשימת סוכנים מורשים (`allowedAgentIds`).
+2. `agents/{agentId}`: הגדרות סוכן, תפקיד, תיאור, ואייקון (עריכה למנהלים בלבד).
+3. `chat_sessions/{sessionId}`: מסמך שיחה המשויך ל-`ownerUid`, כותרת, תאריכים והודעות השיחה.
 
-### Prerequisites
+---
 
-- Node.js (version 16 or higher)
-- npm or yarn
-- An n8n instance with a webhook endpoint
+## 🚀 התקנה והרצה מקומית (Setup & Installation)
 
-### Installation
+### דרישות קדם:
+- Node.js (גרסה 18 ומעלה)
+- חשבון Firebase עם פרויקט מוגדר (Firestore & Authentication)
+- שרת n8n פעיל
 
-1. **Clone the repository:**
-
-   ```bash
-   git clone <repository-url>
-   cd n8n-ai-chatbot-react
-   ```
-
-2. **Install dependencies:**
-
-   ```bash
-   npm install
-   ```
-
-3. **Start the development server:**
-
-   ```bash
-   npm run dev
-   ```
-
-4. **Open your browser:**
-   Navigate to `http://localhost:3000`
-
-### Building for Production
-
+### התקנה:
 ```bash
-npm run build
-npm run preview
+# שכפול המאגר
+git clone https://github.com/dzisu/n8n-ai-chatbot-react-heb.git
+cd n8n-ai-chatbot-react-heb
+
+# התקנת תלויות
+npm install
+
+# הגדרת משתני סביבה (ראה .env.example)
+cp .env.example .env
+# ערוך את ערכי ה-Firebase בקובץ .env
+
+# הרצת שרת פיתוח
+npm run dev
 ```
 
-## Configuration
-
-### N8N Webhook Setup
-
-1. **Create an n8n workflow** with a webhook trigger
-2. **Configure your AI service** (OpenAI, Google AI, etc.) in the workflow
-3. **Set the webhook URL** in the chatbot interface
-4. **Test the connection** by sending a message
-
-### Example N8N Workflow Structure
-
-```
-Webhook Trigger → AI Service (OpenAI/Google AI) → Response
-```
-
-The webhook should:
-
-- Accept POST requests with JSON payload: `{message: string, sessionId: string, timestamp: string}`
-- Return JSON response: `{response: string}` or `{message: string}`
-
-## Testing
-
-### Manual Testing
-
-1. **Start the application** (`npm run dev`)
-2. **Configure webhook URL** in the sidebar
-3. **Send test messages** to verify AI responses
-4. **Test session management**:
-   - Create new sessions
-   - Switch between sessions
-   - Delete sessions
-5. **Test export functionality**
-6. **Test responsive design** on different screen sizes
-
-### Type Checking
-
+### בדיקת טיפוסים ובנייה לפרודקשן:
 ```bash
+# בדיקת טיפוסים
 npm run type-check
+
+# בנייה לפרודקשן
+npm run build
 ```
 
-## API Integration
+---
 
-The application expects your n8n webhook to:
+## 🔒 פריסת כללי אבטחה ל-Firestore
 
-**Request Format:**
-
-```json
-{
-  "message": "User's message",
-  "sessionId": "unique-session-id",
-  "timestamp": "2024-01-01T00:00:00.000Z"
-}
+כדי לפרוס את כללי האבטחה המעודכנים מתוך `firestore.rules`:
+```bash
+firebase deploy --only firestore:rules
 ```
 
-**Response Format:**
-
-```json
-{
-  "response": "AI's response message"
-}
+ולפריסת האתר המלא ב-Firebase Hosting:
+```bash
+firebase deploy --only hosting
 ```
 
-## Features Details
+---
 
-### Chat Sessions
-
-- Create multiple independent chat sessions
-- Automatic session title generation from first message
-- Persistent storage across browser sessions
-- Session switching with message history preservation
-
-### Error Handling
-
-- Network error handling with user-friendly messages
-- Graceful degradation when webhook is unavailable
-- Input validation and sanitization
-
-### UI/UX Features
-
-- Smooth scrolling to new messages
-- Loading indicators during AI processing
-- Responsive design for all screen sizes
-- Keyboard shortcuts (Enter to send)
-- Auto-focus on input field
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test thoroughly
-5. Submit a pull request
-
-## License
-
-MIT License - see LICENSE file for details.
-
-## Troubleshooting
-
-### Common Issues
-
-1. **Webhook connection failed:**
-
-   - Verify your n8n instance is running
-   - Check the webhook URL is correct
-   - Ensure CORS is properly configured in n8n
-
-2. **Messages not appearing:**
-
-   - Check browser console for errors
-   - Verify the webhook response format
-   - Check network tab for API calls
-
-3. **Sessions not saving:**
-   - Ensure localStorage is enabled in your browser
-   - Check for browser storage quota limits
-
-### Support
-
-For issues and questions, please open an issue in the repository.
+## 📄 רישיון
+MIT License.

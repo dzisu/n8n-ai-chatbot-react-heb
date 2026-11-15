@@ -1,24 +1,17 @@
 import { ChatSession, Agent, User } from "../types/chat";
-import { db } from "./firebase";
+import { db, auth } from "./firebase";
 import {
   collection,
   doc,
   setDoc,
+  getDoc,
   deleteDoc,
   onSnapshot,
+  query,
+  where,
+  getDocs,
 } from "firebase/firestore";
-
-export const DEFAULT_USERS: User[] = [
-  {
-    id: "admin-1",
-    username: "admin",
-    password: "admin",
-    email: "admin@example.com",
-    role: "admin",
-    allowedAgentIds: [],
-    createdAt: new Date().toISOString(),
-  },
-];
+import { User as FirebaseUser } from "firebase/auth";
 
 export const DEFAULT_AGENTS: Agent[] = [
   {
@@ -75,68 +68,95 @@ export class StorageService {
   private static readonly SESSIONS_KEY = "chatSessions";
   private static readonly AGENTS_KEY = "chatAgents";
   private static readonly ACTIVE_AGENT_KEY = "activeAgentId";
-  private static readonly USERS_KEY = "chatbotUsers";
   private static readonly CURRENT_USER_KEY = "chatbotCurrentUser";
 
-  // ================= USERS =================
-  static loadUsers(): User[] {
-    try {
-      const stored = localStorage.getItem(this.USERS_KEY);
-      if (!stored) {
-        this.saveLocalUsers(DEFAULT_USERS);
-        return DEFAULT_USERS;
-      }
-      const parsed = JSON.parse(stored);
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        return parsed;
-      }
-      return DEFAULT_USERS;
-    } catch (error) {
-      console.warn("Failed to load users from local storage:", error);
-      return DEFAULT_USERS;
-    }
-  }
+  // ================= USERS & AUTH PROFILE =================
+  static async syncUserProfile(firebaseUser: FirebaseUser): Promise<User> {
+    const firestoreDb = db;
+    const defaultProfile: User = {
+      id: firebaseUser.uid,
+      username:
+        firebaseUser.displayName ||
+        (firebaseUser.email ? firebaseUser.email.split("@")[0] : "user"),
+      email: firebaseUser.email || "",
+      role: "user",
+      allowedAgentIds: ["shuki", "sophie", "cinema", "edna"],
+      createdAt: new Date().toISOString(),
+    };
 
-  private static saveLocalUsers(users: User[]): void {
+    if (!firestoreDb) {
+      this.saveCurrentUser(defaultProfile);
+      return defaultProfile;
+    }
+
     try {
-      localStorage.setItem(this.USERS_KEY, JSON.stringify(users));
+      const userDocRef = doc(firestoreDb, "users", firebaseUser.uid);
+      const userDoc = await getDoc(userDocRef);
+
+      if (userDoc.exists()) {
+        const data = userDoc.data() as User;
+        const profile: User = {
+          ...defaultProfile,
+          ...data,
+          id: firebaseUser.uid,
+          email: firebaseUser.email || data.email || "",
+        };
+        this.saveCurrentUser(profile);
+        return profile;
+      }
+
+      // Check if this is the first user or an admin email
+      let role: "admin" | "user" = "user";
+      const normalizedEmail = (firebaseUser.email || "").toLowerCase();
+      if (
+        normalizedEmail.includes("davidzisu") ||
+        normalizedEmail.includes("dzisu") ||
+        normalizedEmail.startsWith("admin@")
+      ) {
+        role = "admin";
+      } else {
+        const allUsersSnap = await getDocs(collection(firestoreDb, "users"));
+        if (allUsersSnap.empty) {
+          role = "admin"; // First registered user is automatically admin
+        }
+      }
+
+      const newProfile: User = {
+        ...defaultProfile,
+        role,
+        allowedAgentIds: role === "admin" ? [] : ["shuki", "sophie", "cinema", "edna"],
+      };
+
+      await setDoc(userDocRef, newProfile);
+      this.saveCurrentUser(newProfile);
+      return newProfile;
     } catch (error) {
-      console.warn("Failed to save users locally:", error);
+      console.warn("Error syncing user profile with Firestore:", error);
+      this.saveCurrentUser(defaultProfile);
+      return defaultProfile;
     }
   }
 
   static subscribeToUsers(callback: (users: User[]) => void): () => void {
     const firestoreDb = db;
     if (!firestoreDb) {
-      callback(this.loadUsers());
+      callback([]);
       return () => {};
     }
 
     const usersCol = collection(firestoreDb, "users");
     const unsubscribe = onSnapshot(
       usersCol,
-      async (snapshot) => {
-        if (snapshot.empty) {
-          // Seed default users in Firestore
-          for (const u of DEFAULT_USERS) {
-            await setDoc(doc(firestoreDb, "users", u.id), u);
-          }
-          this.saveLocalUsers(DEFAULT_USERS);
-          callback(DEFAULT_USERS);
-          return;
-        }
-
+      (snapshot) => {
         const firestoreUsers: User[] = [];
         snapshot.forEach((d) => {
           firestoreUsers.push(d.data() as User);
         });
-
-        this.saveLocalUsers(firestoreUsers);
         callback(firestoreUsers);
       },
       (error) => {
-        console.warn("Firestore users listener error, falling back to local:", error);
-        callback(this.loadUsers());
+        console.warn("Firestore users listener error:", error);
+        callback([]);
       }
     );
 
@@ -144,12 +164,6 @@ export class StorageService {
   }
 
   static async saveUser(user: User): Promise<void> {
-    const current = this.loadUsers();
-    const idx = current.findIndex((u) => u.id === user.id);
-    const updated = idx >= 0 ? [...current] : [user, ...current];
-    if (idx >= 0) updated[idx] = user;
-    this.saveLocalUsers(updated);
-
     const firestoreDb = db;
     if (firestoreDb) {
       try {
@@ -161,10 +175,6 @@ export class StorageService {
   }
 
   static async deleteUser(userId: string): Promise<void> {
-    const current = this.loadUsers();
-    const updated = current.filter((u) => u.id !== userId);
-    this.saveLocalUsers(updated);
-
     const firestoreDb = db;
     if (firestoreDb) {
       try {
@@ -175,21 +185,7 @@ export class StorageService {
     }
   }
 
-  static async saveUsers(users: User[]): Promise<void> {
-    this.saveLocalUsers(users);
-    const firestoreDb = db;
-    if (firestoreDb) {
-      try {
-        for (const u of users) {
-          await setDoc(doc(firestoreDb, "users", u.id), u);
-        }
-      } catch (err) {
-        console.error("Failed to save users batch to Firestore:", err);
-      }
-    }
-  }
-
-  // ================= CURRENT USER (Device-bound) =================
+  // Device-cached profile
   static loadCurrentUser(): User | null {
     try {
       const stored = localStorage.getItem(this.CURRENT_USER_KEY);
@@ -208,7 +204,7 @@ export class StorageService {
         localStorage.setItem(this.CURRENT_USER_KEY, JSON.stringify(user));
       }
     } catch (error) {
-      console.warn("Failed to save current user:", error);
+      console.warn("Failed to save current user cache:", error);
     }
   }
 
@@ -251,8 +247,15 @@ export class StorageService {
       agentsCol,
       async (snapshot) => {
         if (snapshot.empty) {
-          for (const a of DEFAULT_AGENTS) {
-            await setDoc(doc(firestoreDb, "agents", a.id), a);
+          // If Firestore is empty and auth user exists, seed default agents
+          if (auth?.currentUser) {
+            try {
+              for (const a of DEFAULT_AGENTS) {
+                await setDoc(doc(firestoreDb, "agents", a.id), a);
+              }
+            } catch (seedErr) {
+              console.warn("Could not seed default agents in Firestore:", seedErr);
+            }
           }
           this.saveLocalAgents(DEFAULT_AGENTS);
           callback(DEFAULT_AGENTS);
@@ -308,20 +311,6 @@ export class StorageService {
     }
   }
 
-  static async saveAgents(agents: Agent[]): Promise<void> {
-    this.saveLocalAgents(agents);
-    const firestoreDb = db;
-    if (firestoreDb) {
-      try {
-        for (const a of agents) {
-          await setDoc(doc(firestoreDb, "agents", a.id), a);
-        }
-      } catch (err) {
-        console.error("Failed to batch save agents to Firestore:", err);
-      }
-    }
-  }
-
   static loadActiveAgentId(fallbackId: string): string {
     try {
       return localStorage.getItem(this.ACTIVE_AGENT_KEY) || fallbackId;
@@ -338,19 +327,42 @@ export class StorageService {
     }
   }
 
-  // ================= SESSIONS =================
+  // ================= SESSIONS & ISOLATION =================
   private static serializeSession(session: ChatSession): any {
     return {
       id: session.id,
       title: session.title,
       agentId: session.agentId,
       isArchived: Boolean(session.isArchived),
-      userId: session.userId || null,
-      createdAt: session.createdAt instanceof Date ? session.createdAt.toISOString() : session.createdAt,
-      lastUpdated: session.lastUpdated instanceof Date ? session.lastUpdated.toISOString() : session.lastUpdated,
+      userId: session.ownerUid || session.userId || null,
+      ownerUid: session.ownerUid || session.userId || null,
+      createdAt:
+        session.createdAt instanceof Date
+          ? session.createdAt.toISOString()
+          : session.createdAt,
+      lastUpdated:
+        session.lastUpdated instanceof Date
+          ? session.lastUpdated.toISOString()
+          : session.lastUpdated,
       messages: (session.messages || []).map((msg) => ({
-        ...msg,
-        timestamp: msg.timestamp instanceof Date ? msg.timestamp.toISOString() : msg.timestamp,
+        id: msg.id,
+        content: msg.content,
+        sender: msg.sender,
+        agentId: msg.agentId,
+        agentName: msg.agentName,
+        timestamp:
+          msg.timestamp instanceof Date
+            ? msg.timestamp.toISOString()
+            : msg.timestamp,
+        // CRITICAL FIX: Only store attachment metadata in Firestore! Strip dataUrl to prevent 1MB limit overflow.
+        attachment: msg.attachment
+          ? {
+              name: msg.attachment.name,
+              type: msg.attachment.type,
+              size: msg.attachment.size,
+              isImage: Boolean(msg.attachment.isImage),
+            }
+          : undefined,
       })),
     };
   }
@@ -365,12 +377,25 @@ export class StorageService {
           raw.messages.find((m: any) => m?.agentId)?.agentId) ||
         "shuki",
       isArchived: Boolean(raw.isArchived),
-      userId: raw.userId || undefined,
+      userId: raw.ownerUid || raw.userId || undefined,
+      ownerUid: raw.ownerUid || raw.userId || undefined,
       createdAt: parseDate(raw.createdAt),
       lastUpdated: parseDate(raw.lastUpdated),
       messages: (raw.messages || []).map((msg: any) => ({
-        ...msg,
+        id: msg.id || crypto.randomUUID(),
+        content: msg.content || "",
+        sender: msg.sender || "user",
         timestamp: parseDate(msg.timestamp),
+        agentId: msg.agentId,
+        agentName: msg.agentName,
+        attachment: msg.attachment
+          ? {
+              name: msg.attachment.name,
+              type: msg.attachment.type,
+              size: msg.attachment.size,
+              isImage: Boolean(msg.attachment.isImage),
+            }
+          : undefined,
       })),
     };
   }
@@ -398,29 +423,32 @@ export class StorageService {
     }
   }
 
-  static subscribeToSessions(callback: (sessions: ChatSession[]) => void): () => void {
+  /**
+   * Subscribes to real-time chat sessions filtered strictly by ownerUid for security isolation
+   */
+  static subscribeToSessions(
+    ownerUid: string | null | undefined,
+    callback: (sessions: ChatSession[]) => void
+  ): () => void {
     const firestoreDb = db;
-    if (!firestoreDb) {
-      callback(this.loadSessions());
+    if (!firestoreDb || !ownerUid) {
+      callback([]);
       return () => {};
     }
 
     const sessionsCol = collection(firestoreDb, "chat_sessions");
-    const unsubscribe = onSnapshot(
-      sessionsCol,
-      (snapshot) => {
-        if (snapshot.empty) {
-          const local = this.loadSessions();
-          callback(local);
-          return;
-        }
+    // Strictly isolate sessions by authenticated ownerUid
+    const q = query(sessionsCol, where("ownerUid", "==", ownerUid));
 
+    const unsubscribe = onSnapshot(
+      q,
+      (snapshot) => {
         const firestoreSessions: ChatSession[] = [];
         snapshot.forEach((d) => {
           firestoreSessions.push(this.deserializeSession(d.data()));
         });
 
-        // Sort by lastUpdated descending
+        // Sort descending by lastUpdated
         firestoreSessions.sort(
           (a, b) => b.lastUpdated.getTime() - a.lastUpdated.getTime()
         );
@@ -437,18 +465,25 @@ export class StorageService {
     return unsubscribe;
   }
 
-  static async saveSession(session: ChatSession): Promise<void> {
+  static async saveSession(session: ChatSession, ownerUid?: string): Promise<void> {
+    const uid = ownerUid || session.ownerUid || session.userId;
+    const sessionWithUid: ChatSession = {
+      ...session,
+      ownerUid: uid,
+      userId: uid,
+    };
+
     const current = this.loadSessions();
-    const idx = current.findIndex((s) => s.id === session.id);
-    const updated = idx >= 0 ? [...current] : [session, ...current];
-    if (idx >= 0) updated[idx] = session;
+    const idx = current.findIndex((s) => s.id === sessionWithUid.id);
+    const updated = idx >= 0 ? [...current] : [sessionWithUid, ...current];
+    if (idx >= 0) updated[idx] = sessionWithUid;
     this.saveLocalSessions(updated);
 
     const firestoreDb = db;
-    if (firestoreDb) {
+    if (firestoreDb && uid) {
       try {
-        const serialized = this.serializeSession(session);
-        await setDoc(doc(firestoreDb, "chat_sessions", session.id), serialized);
+        const serialized = this.serializeSession(sessionWithUid);
+        await setDoc(doc(firestoreDb, "chat_sessions", sessionWithUid.id), serialized);
       } catch (err) {
         console.error("Failed to save session to Firestore:", err);
       }
@@ -470,25 +505,13 @@ export class StorageService {
     }
   }
 
-  static async saveSessions(sessions: ChatSession[]): Promise<void> {
-    this.saveLocalSessions(sessions);
-    const firestoreDb = db;
-    if (firestoreDb) {
-      try {
-        for (const s of sessions) {
-          await setDoc(doc(firestoreDb, "chat_sessions", s.id), this.serializeSession(s));
-        }
-      } catch (err) {
-        console.error("Failed to batch save sessions to Firestore:", err);
-      }
-    }
-  }
-
   // ================= EXPORT =================
   static exportSession(session: ChatSession, agent?: Agent): void {
     const exportData = {
       sessionTitle: session.title,
-      agent: agent ? { id: agent.id, name: agent.name, role: agent.role } : session.agentId,
+      agent: agent
+        ? { id: agent.id, name: agent.name, role: agent.role }
+        : session.agentId,
       exportDate: new Date().toISOString(),
       messages: session.messages.map((msg) => ({
         sender: msg.sender,
@@ -496,7 +519,11 @@ export class StorageService {
         timestamp: msg.timestamp,
         agentName: msg.agentName,
         attachment: msg.attachment
-          ? { name: msg.attachment.name, size: msg.attachment.size, type: msg.attachment.type }
+          ? {
+              name: msg.attachment.name,
+              size: msg.attachment.size,
+              type: msg.attachment.type,
+            }
           : undefined,
       })),
     };
