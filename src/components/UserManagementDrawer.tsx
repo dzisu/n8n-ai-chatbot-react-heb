@@ -123,7 +123,7 @@ export const UserManagementDrawer: React.FC<UserManagementDrawerProps> = ({
             </button>
             <div>
               <h2 className="text-lg font-bold text-[#191919] dark:text-[#FAFAFA] flex items-center gap-2 font-sans">
-                <Wrench className="text-[#FF91AC]" size={20} />
+                <Wrench className="text-[#191919] dark:text-[#FAFAFA]" size={20} />
                 <span>ניהול משתמשים והרשאות</span>
               </h2>
               <p className="text-xs text-[#676767] dark:text-[#A4A4A4] mt-0.5 font-sans">
@@ -139,7 +139,7 @@ export const UserManagementDrawer: React.FC<UserManagementDrawerProps> = ({
           {editingUser && (
             <form
               onSubmit={handleSubmit}
-              className="bg-[#FFFFFF] dark:bg-[#242424] border border-[#FF91AC]/50 rounded-2xl p-4 space-y-3 shadow-lg"
+              className="bg-[#FFFFFF] dark:bg-[#242424] border border-[#E0E0E0] dark:border-[#353535] rounded-2xl p-4 space-y-3 shadow-lg"
             >
               <div className="flex items-center justify-between border-b border-[#E0E0E0] dark:border-[#353535] pb-2">
                 <h3 className="text-sm font-semibold text-[#191919] dark:text-[#FAFAFA]">
@@ -155,7 +155,7 @@ export const UserManagementDrawer: React.FC<UserManagementDrawerProps> = ({
               </div>
 
               {formError && (
-                <div className="p-2 bg-[#FFE8EC] dark:bg-[#5A0026] border border-[#FF91AC]/40 text-[#87003C] dark:text-[#FFBCCA] text-xs rounded-xl flex items-center gap-1.5 font-sans">
+                <div className="p-2 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/50 text-amber-800 dark:text-amber-200 text-xs rounded-xl flex items-center gap-1.5 font-sans">
                   <AlertCircle size={14} />
                   <span>{formError}</span>
                 </div>
@@ -172,7 +172,7 @@ export const UserManagementDrawer: React.FC<UserManagementDrawerProps> = ({
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
                     placeholder="למשל: תומר זיסו"
-                    className="w-full bg-[#F1F1F1] dark:bg-[#191919] text-[#191919] dark:text-[#FAFAFA] text-xs p-2.5 pr-8 rounded-xl border border-[#E0E0E0] dark:border-[#353535] focus:border-[#FF91AC] focus:outline-none"
+                    className="w-full bg-[#F1F1F1] dark:bg-[#191919] text-[#191919] dark:text-[#FAFAFA] text-xs p-2.5 pr-8 rounded-xl border border-[#E0E0E0] dark:border-[#353535] focus:border-[#191919] dark:focus:border-[#FAFAFA] focus:outline-none"
                   />
                   <UserIcon
                     size={14}
@@ -191,7 +191,7 @@ export const UserManagementDrawer: React.FC<UserManagementDrawerProps> = ({
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="name@example.com"
-                    className="w-full bg-[#F1F1F1] dark:bg-[#191919] text-[#191919] dark:text-[#FAFAFA] text-xs p-2.5 pr-8 rounded-xl border border-[#E0E0E0] dark:border-[#353535] focus:border-[#FF91AC] focus:outline-none font-mono"
+                    className="w-full bg-[#F1F1F1] dark:bg-[#191919] text-[#191919] dark:text-[#FAFAFA] text-xs p-2.5 pr-8 rounded-xl border border-[#E0E0E0] dark:border-[#353535] focus:border-[#191919] dark:focus:border-[#FAFAFA] focus:outline-none font-mono"
                     dir="ltr"
                   />
                   <Mail
@@ -224,7 +224,7 @@ export const UserManagementDrawer: React.FC<UserManagementDrawerProps> = ({
                     onClick={() => setRole("admin")}
                     className={`p-2.5 rounded-xl border text-xs flex items-center justify-center gap-1.5 font-bold transition-all cursor-pointer ${
                       role === "admin"
-                        ? "bg-[#FF91AC] text-[#191919] border-[#FFBCCA] shadow-n8n-pink"
+                        ? "bg-[#191919] dark:bg-[#FAFAFA] text-[#FAFAFA] dark:text-[#191919] border-transparent shadow-sm"
                         : "bg-[#F1F1F1] dark:bg-[#191919] text-[#676767] dark:text-[#A4A4A4] border-[#E0E0E0] dark:border-[#353535] hover:bg-[#EAEAEA]"
                     }`}
                   >
@@ -245,7 +245,7 @@ export const UserManagementDrawer: React.FC<UserManagementDrawerProps> = ({
                       <button
                         type="button"
                         onClick={selectAllAgents}
-                        className="text-[#87003C] dark:text-[#FF91AC] hover:underline cursor-pointer"
+                        className="text-[#676767] hover:text-[#191919] dark:text-[#A4A4A4] dark:hover:text-[#FAFAFA] hover:underline cursor-pointer"
                       >
                         בחר הכל
                       </button>
@@ -270,7 +270,7 @@ export const UserManagementDrawer: React.FC<UserManagementDrawerProps> = ({
                           className="flex items-center gap-2 p-1.5 hover:bg-black/5 dark:hover:bg-white/5 rounded-lg cursor-pointer select-none text-xs"
                         >
                           {isChecked ? (
-                            <CheckSquare size={16} className="text-[#FF91AC]" />
+                            <CheckSquare size={16} className="text-[#191919] dark:text-[#FAFAFA]" />
                           ) : (
                             <Square size={16} className="text-[#868686]" />
                           )}
@@ -301,7 +301,7 @@ export const UserManagementDrawer: React.FC<UserManagementDrawerProps> = ({
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-1.5 text-xs bg-[#FF91AC] hover:bg-[#FFD0D9] text-[#191919] font-bold rounded-2xl shadow-n8n-pink active:scale-95 cursor-pointer"
+                  className="px-4 py-1.5 text-xs bg-[#191919] hover:bg-[#333333] text-[#FAFAFA] dark:bg-[#FAFAFA] dark:hover:bg-[#EAEAEA] dark:text-[#191919] font-bold rounded-2xl shadow-sm active:scale-95 cursor-pointer"
                 >
                   שמור שינויים
                 </button>
@@ -332,7 +332,7 @@ export const UserManagementDrawer: React.FC<UserManagementDrawerProps> = ({
                       <div
                         className={`w-9 h-9 rounded-xl flex items-center justify-center font-bold flex-shrink-0 ${
                           user.role === "admin"
-                            ? "bg-[#FF91AC] text-[#191919] border border-[#FFBCCA]"
+                            ? "bg-[#191919] text-[#FAFAFA] dark:bg-[#FAFAFA] dark:text-[#191919] border border-[#E0E0E0] dark:border-[#353535]"
                             : "bg-[#F1F1F1] dark:bg-[#191919] text-[#676767] dark:text-[#A4A4A4] border border-[#E0E0E0] dark:border-[#353535]"
                         }`}
                       >
@@ -369,7 +369,7 @@ export const UserManagementDrawer: React.FC<UserManagementDrawerProps> = ({
                       <button
                         type="button"
                         onClick={() => startEdit(user)}
-                        className="p-1.5 text-[#868686] hover:text-[#FF91AC] rounded-lg transition-colors cursor-pointer"
+                        className="p-1.5 text-[#868686] hover:text-[#191919] dark:hover:text-[#FAFAFA] rounded-lg transition-colors cursor-pointer"
                         title="ערוך הרשאות וסוכנים"
                       >
                         <Edit2 size={15} />

@@ -109,24 +109,24 @@ export const ChatInput: React.FC<ChatInputProps> = ({
       <div className="max-w-4xl mx-auto space-y-2">
         {/* Attachment preview bar */}
         {attachment && (
-          <div className="flex items-center justify-between bg-[#FFE8EC] dark:bg-[#5A0026] border border-[#FF91AC]/40 rounded-xl p-2 px-3 shadow-sm">
+          <div className="flex items-center justify-between bg-[#F1F1F1] dark:bg-[#242424] border border-[#E0E0E0] dark:border-[#353535] rounded-xl p-2 px-3 shadow-sm">
             <div className="flex items-center gap-2.5 min-w-0">
               {attachment.isImage && attachment.dataUrl ? (
                 <img
                   src={attachment.dataUrl}
                   alt={attachment.name}
-                  className="w-10 h-10 object-cover rounded-lg border border-[#FFBCCA] flex-shrink-0"
+                  className="w-10 h-10 object-cover rounded-lg border border-[#E0E0E0] dark:border-[#353535] flex-shrink-0"
                 />
               ) : (
-                <div className="w-10 h-10 rounded-lg bg-[#FFD0D9] dark:bg-[#44001B] text-[#87003C] dark:text-[#FFBCCA] flex items-center justify-center flex-shrink-0">
+                <div className="w-10 h-10 rounded-lg bg-[#EAEAEA] dark:bg-[#353535] text-[#191919] dark:text-[#FAFAFA] flex items-center justify-center flex-shrink-0">
                   <FileText size={20} />
                 </div>
               )}
               <div className="min-w-0 text-right">
-                <p className="text-xs font-semibold text-[#87003C] dark:text-[#FAFAFA] truncate max-w-[200px] sm:max-w-xs font-sans">
+                <p className="text-xs font-semibold text-[#191919] dark:text-[#FAFAFA] truncate max-w-[200px] sm:max-w-xs font-sans">
                   {attachment.name}
                 </p>
-                <p className="text-[10px] text-[#87003C]/80 dark:text-[#FFBCCA]/80 font-mono">
+                <p className="text-[10px] text-[#676767] dark:text-[#A4A4A4] font-mono">
                   {formatFileSize(attachment.size)}
                 </p>
               </div>
@@ -135,7 +135,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
             <button
               type="button"
               onClick={handleRemoveAttachment}
-              className="p-1 rounded-lg text-[#87003C] dark:text-[#FFBCCA] hover:bg-black/10 transition-colors cursor-pointer"
+              className="p-1 rounded-lg text-[#676767] hover:text-[#191919] dark:text-[#A4A4A4] dark:hover:text-[#FAFAFA] hover:bg-black/5 dark:hover:bg-white/5 transition-colors cursor-pointer"
               title="הסר קובץ"
             >
               <X size={16} />
@@ -178,17 +178,17 @@ export const ChatInput: React.FC<ChatInputProps> = ({
                   ? "הוסף הודעה לקובץ או לחץ שלח..."
                   : `כתוב הודעה ל-${activeAgent.name}...`
               }
-              className="w-full bg-[#F1F1F1] dark:bg-[#242424] text-[#191919] dark:text-[#FAFAFA] text-sm sm:text-base p-2.5 sm:p-3 rounded-2xl border border-[#E0E0E0] dark:border-[#353535] focus:border-[#FF91AC] focus:outline-none focus:ring-2 focus:ring-[#FF91AC]/30 transition-all placeholder-[#868686] dark:placeholder-[#676767] shadow-inner disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-[#F1F1F1] dark:bg-[#242424] text-[#191919] dark:text-[#FAFAFA] text-sm sm:text-base p-2.5 sm:p-3 rounded-2xl border border-[#E0E0E0] dark:border-[#353535] focus:border-[#191919] dark:focus:border-[#FAFAFA] focus:outline-none focus:ring-1 focus:ring-[#191919]/20 dark:focus:ring-[#FAFAFA]/20 transition-all placeholder-[#868686] dark:placeholder-[#676767] shadow-inner disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={isInputDisabled}
               autoFocus={false}
             />
           </div>
 
-          {/* Send Button - Official n8n Main Accent Pink with Black Icon */}
+          {/* Send Button - Official n8n Accent Pink Single Touch */}
           <button
             onClick={handleSend}
             disabled={!canSend}
-            className="bg-[#FF91AC] hover:bg-[#FFD0D9] active:bg-[#FFBCCA] text-[#191919] p-2.5 sm:p-3 rounded-2xl transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed shadow-n8n-pink hover:shadow-n8n-pink-lg active:scale-95 flex-shrink-0 flex items-center justify-center cursor-pointer"
+            className="bg-[#FF91AC] hover:bg-[#ff7a9b] text-[#191919] p-2.5 sm:p-3 rounded-2xl transition-all duration-200 disabled:bg-[#EAEAEA] dark:disabled:bg-[#353535] disabled:text-[#868686] dark:disabled:text-[#676767] disabled:opacity-40 disabled:cursor-not-allowed shadow-sm active:scale-95 flex-shrink-0 flex items-center justify-center cursor-pointer"
             title="שלח הודעה"
           >
             <Send size={18} className="transform -rotate-90 sm:rotate-0 text-[#191919]" />

@@ -139,7 +139,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
 
         {/* Header */}
         <div className="text-center mb-5">
-          <div className="w-12 h-12 mx-auto rounded-2xl bg-[#FF91AC] text-[#191919] flex items-center justify-center shadow-n8n-pink mb-3 font-bold border border-[#FFBCCA]">
+          <div className="w-12 h-12 mx-auto rounded-2xl bg-[#191919] text-[#FAFAFA] dark:bg-[#FAFAFA] dark:text-[#191919] flex items-center justify-center shadow-sm mb-3 font-bold border border-[#E0E0E0] dark:border-[#353535]">
             <Lock size={22} />
           </div>
           <h2 className="text-lg font-bold text-[#191919] dark:text-[#FAFAFA] font-sans">
@@ -162,7 +162,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
         {currentUser ? (
           <div className="space-y-4">
             <div className="p-3.5 bg-[#F1F1F1] dark:bg-[#242424] rounded-2xl border border-[#E0E0E0] dark:border-[#353535] flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-[#FFE8EC] dark:bg-[#5A0026] text-[#87003C] dark:text-[#FFBCCA] flex items-center justify-center font-bold">
+              <div className="w-10 h-10 rounded-xl bg-[#EAEAEA] dark:bg-[#353535] text-[#191919] dark:text-[#FAFAFA] flex items-center justify-center font-bold">
                 {currentUser.role === "admin" ? (
                   <Shield size={20} />
                 ) : (
@@ -201,7 +201,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
               <button
                 type="button"
                 onClick={handleLogoutClick}
-                className="flex-1 bg-[#FFE8EC] hover:bg-[#FFD0D9] dark:bg-[#44001B] dark:hover:bg-[#5A0026] text-[#87003C] dark:text-[#FFBCCA] border border-[#FF91AC]/30 py-2.5 px-3 rounded-2xl font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition-all shadow-sm active:scale-95 cursor-pointer"
+                className="flex-1 bg-red-50 hover:bg-red-100 dark:bg-red-950/30 dark:hover:bg-red-900/50 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-900/50 py-2.5 px-3 rounded-2xl font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition-all shadow-sm active:scale-95 cursor-pointer"
               >
                 <LogOut size={16} />
                 <span>התנתק מהמערכת</span>
@@ -219,7 +219,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
           /* Login / Register Form */
           <form onSubmit={handleSubmit} className="space-y-3.5">
             {error && (
-              <div className="p-2.5 bg-[#FFE8EC] dark:bg-[#5A0026] border border-[#FF91AC]/40 rounded-xl flex items-center gap-2 text-[#87003C] dark:text-[#FFBCCA] text-xs font-sans">
+              <div className="p-2.5 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/50 rounded-xl flex items-center gap-2 text-red-600 dark:text-red-400 text-xs font-sans">
                 <AlertCircle size={15} className="flex-shrink-0" />
                 <span>{error}</span>
               </div>
@@ -236,7 +236,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                     value={displayName}
                     onChange={(e) => setDisplayName(e.target.value)}
                     placeholder="למשל: תומר זיסו"
-                    className="w-full bg-[#F1F1F1] dark:bg-[#242424] text-[#191919] dark:text-[#FAFAFA] text-xs sm:text-sm p-2.5 pr-9 rounded-xl border border-[#E0E0E0] dark:border-[#353535] focus:border-[#FF91AC] focus:outline-none focus:ring-1 focus:ring-[#FF91AC]"
+                    className="w-full bg-[#F1F1F1] dark:bg-[#242424] text-[#191919] dark:text-[#FAFAFA] text-xs sm:text-sm p-2.5 pr-9 rounded-xl border border-[#E0E0E0] dark:border-[#353535] focus:border-[#191919] dark:focus:border-[#FAFAFA] focus:outline-none focus:ring-1 focus:ring-[#191919]/20 dark:focus:ring-[#FAFAFA]/20"
                   />
                   <UserIcon
                     size={16}
@@ -257,7 +257,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="name@example.com"
-                  className="w-full bg-[#F1F1F1] dark:bg-[#242424] text-[#191919] dark:text-[#FAFAFA] text-xs sm:text-sm p-2.5 pr-9 rounded-xl border border-[#E0E0E0] dark:border-[#353535] focus:border-[#FF91AC] focus:outline-none focus:ring-1 focus:ring-[#FF91AC] font-mono"
+                  className="w-full bg-[#F1F1F1] dark:bg-[#242424] text-[#191919] dark:text-[#FAFAFA] text-xs sm:text-sm p-2.5 pr-9 rounded-xl border border-[#E0E0E0] dark:border-[#353535] focus:border-[#191919] dark:focus:border-[#FAFAFA] focus:outline-none focus:ring-1 focus:ring-[#191919]/20 dark:focus:ring-[#FAFAFA]/20 font-mono"
                   dir="ltr"
                   autoFocus
                 />
@@ -279,7 +279,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="לפחות 6 תווים..."
-                  className="w-full bg-[#F1F1F1] dark:bg-[#242424] text-[#191919] dark:text-[#FAFAFA] text-xs sm:text-sm p-2.5 pr-9 rounded-xl border border-[#E0E0E0] dark:border-[#353535] focus:border-[#FF91AC] focus:outline-none focus:ring-1 focus:ring-[#FF91AC] font-mono"
+                  className="w-full bg-[#F1F1F1] dark:bg-[#242424] text-[#191919] dark:text-[#FAFAFA] text-xs sm:text-sm p-2.5 pr-9 rounded-xl border border-[#E0E0E0] dark:border-[#353535] focus:border-[#191919] dark:focus:border-[#FAFAFA] focus:outline-none focus:ring-1 focus:ring-[#191919]/20 dark:focus:ring-[#FAFAFA]/20 font-mono"
                   dir="ltr"
                 />
                 <Lock
@@ -289,11 +289,11 @@ export const LoginModal: React.FC<LoginModalProps> = ({
               </div>
             </div>
 
-            {/* Official n8n Pink Submit Button with Black Text */}
+            {/* Single touch of pink: Submit Button */}
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full bg-[#FF91AC] hover:bg-[#FFD0D9] active:bg-[#FFBCCA] text-[#191919] py-3 px-4 rounded-2xl font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition-all shadow-n8n-pink active:scale-95 mt-2 disabled:opacity-50 cursor-pointer"
+              className="w-full bg-[#FF91AC] hover:bg-[#ff7a9b] text-[#191919] py-3 px-4 rounded-2xl font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition-all shadow-sm active:scale-95 mt-2 disabled:opacity-50 cursor-pointer"
             >
               {isSubmitting ? (
                 <>

@@ -29,8 +29,8 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ message, agent }) 
         <div
           className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center shrink-0 aspect-square shadow-sm ${
             isUser
-              ? "bg-[#191919] text-[#FF91AC] dark:bg-[#FAFAFA] dark:text-[#191919] border border-[#E0E0E0] dark:border-[#353535]"
-              : "bg-[#FF91AC] text-[#191919] border border-[#FFBCCA]"
+              ? "bg-[#191919] text-[#FAFAFA] dark:bg-[#FAFAFA] dark:text-[#191919] border border-[#E0E0E0] dark:border-[#353535]"
+              : "bg-[#191919] text-[#FAFAFA] dark:bg-[#242424] dark:text-[#FAFAFA] border border-[#E0E0E0] dark:border-[#353535]"
           }`}
           style={{
             width: "2.25rem",
@@ -71,7 +71,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ message, agent }) 
           <div
             className={`rounded-2xl px-4 py-3 shadow-sm text-sm sm:text-base leading-relaxed text-right space-y-2.5 ${
               isUser
-                ? "bg-[#FF91AC] text-[#191919] rounded-tr-sm font-medium shadow-n8n-pink"
+                ? "bg-[#191919] text-[#FAFAFA] dark:bg-[#2A2A2A] dark:text-[#FAFAFA] rounded-tr-sm font-normal"
                 : "bg-[#FFFFFF] dark:bg-[#242424] text-[#191919] dark:text-[#FAFAFA] rounded-tl-sm border border-[#E0E0E0] dark:border-[#353535]"
             }`}
           >
@@ -80,7 +80,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ message, agent }) 
               <div
                 className={`rounded-xl p-2.5 border transition-all ${
                   isUser
-                    ? "bg-black/10 border-black/15 text-[#191919]"
+                    ? "bg-white/10 border-white/15 text-[#FAFAFA]"
                     : "bg-[#F1F1F1] dark:bg-[#191919] border-[#E0E0E0] dark:border-[#353535]"
                 }`}
               >
@@ -102,8 +102,8 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ message, agent }) 
                       <div
                         className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 ${
                           isUser
-                            ? "bg-black/15 text-[#191919]"
-                            : "bg-[#FFE8EC] dark:bg-[#5A0026] text-[#87003C] dark:text-[#FFBCCA]"
+                            ? "bg-white/15 text-[#FAFAFA]"
+                            : "bg-[#EAEAEA] dark:bg-[#353535] text-[#191919] dark:text-[#FAFAFA]"
                         }`}
                       >
                         <FileText size={18} />
@@ -126,7 +126,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ message, agent }) 
                         rel="noreferrer"
                         className={`p-1.5 rounded-lg transition-colors flex-shrink-0 ${
                           isUser
-                            ? "hover:bg-black/15 text-[#191919]"
+                            ? "hover:bg-white/15 text-[#FAFAFA]"
                             : "hover:bg-[#EAEAEA] dark:hover:bg-[#353535] text-[#676767] dark:text-[#A4A4A4]"
                         }`}
                         title="הורד קובץ"
@@ -145,7 +145,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ message, agent }) 
 
             <p
               className={`text-[10px] mt-1 font-mono text-left ${
-                isUser ? "text-[#191919]/60" : "text-[#868686] dark:text-[#676767]"
+                isUser ? "text-[#FAFAFA]/70" : "text-[#868686] dark:text-[#676767]"
               }`}
               dir="ltr"
             >

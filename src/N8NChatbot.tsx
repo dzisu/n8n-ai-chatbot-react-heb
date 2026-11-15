@@ -300,10 +300,8 @@ const N8NChatbot: React.FC = () => {
       dir="rtl"
       className="flex h-[100dvh] h-full w-full bg-[#FAFAFA] dark:bg-[#191919] text-[#191919] dark:text-[#FAFAFA] overflow-hidden relative font-sans transition-colors duration-200"
     >
-      {/* n8n Canvas dot grid and subtle ambient pink aura */}
+      {/* n8n Canvas dot grid */}
       <div className="absolute inset-0 n8n-dot-grid -z-10" />
-      <div className="absolute top-0 right-1/4 w-96 h-96 bg-[#FF91AC]/5 dark:bg-[#FF91AC]/[0.03] rounded-full blur-3xl pointer-events-none -z-10" />
-      <div className="absolute bottom-0 left-1/4 w-96 h-96 bg-[#87003C]/5 dark:bg-[#87003C]/[0.03] rounded-full blur-3xl pointer-events-none -z-10" />
 
       {/* Main Area: If not logged in, show Opening Screen with solid n8n logo only */}
       {!currentUser ? (

@@ -211,13 +211,13 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
                     <ArrowRight size={18} />
                   </button>
                   <h2 className="text-base sm:text-lg font-bold text-[#191919] dark:text-[#FAFAFA] flex items-center gap-2 font-sans">
-                    <Archive className="text-[#87003C] dark:text-[#FF91AC]" size={19} />
+                    <Archive className="text-[#191919] dark:text-[#FAFAFA]" size={19} />
                     <span>ארכיב שיחות</span>
                   </h2>
                 </>
               ) : (
                 <h2 className="text-base sm:text-lg font-bold text-[#191919] dark:text-[#FAFAFA] flex items-center gap-2 font-sans">
-                  <MessageSquare className="text-[#87003C] dark:text-[#FF91AC]" size={19} />
+                  <MessageSquare className="text-[#191919] dark:text-[#FAFAFA]" size={19} />
                   <span>היסטוריית שיחות</span>
                 </h2>
               )}
@@ -244,7 +244,7 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="חיפוש לפי כותרת או תוכן שיחה..."
-                className="w-full pl-8 pr-8 py-2 text-xs bg-[#F1F1F1] dark:bg-[#242424] border border-[#E0E0E0] dark:border-[#353535] rounded-xl text-[#191919] dark:text-[#FAFAFA] placeholder-[#868686] focus:outline-none focus:ring-1 focus:ring-[#FF91AC]"
+                className="w-full pl-8 pr-8 py-2 text-xs bg-[#F1F1F1] dark:bg-[#242424] border border-[#E0E0E0] dark:border-[#353535] rounded-xl text-[#191919] dark:text-[#FAFAFA] placeholder-[#868686] focus:outline-none focus:ring-1 focus:ring-[#191919]/20 dark:focus:ring-[#FAFAFA]/20 focus:border-[#191919] dark:focus:border-[#FAFAFA]"
               />
               {searchQuery && (
                 <button
@@ -258,12 +258,12 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
             </div>
           )}
 
-          {/* Action Buttons (In History View) - Official n8n Pink Button */}
+          {/* Action Buttons (In History View) - Conservative Dark Button */}
           {viewMode === "history" && (
             <div className="flex items-center gap-2 mb-3">
               <button
                 onClick={handleCreateNew}
-                className="flex-1 bg-[#FF91AC] hover:bg-[#FFD0D9] active:bg-[#FFBCCA] text-[#191919] py-2.5 px-3 rounded-2xl font-bold transition-all duration-200 flex items-center justify-center gap-1.5 shadow-n8n-pink active:scale-95 text-xs sm:text-sm cursor-pointer"
+                className="flex-1 bg-[#191919] hover:bg-[#333333] active:scale-95 text-[#FAFAFA] dark:bg-[#FAFAFA] dark:hover:bg-[#EAEAEA] dark:text-[#191919] py-2.5 px-3 rounded-2xl font-bold transition-all duration-200 flex items-center justify-center gap-1.5 shadow-sm text-xs sm:text-sm cursor-pointer"
               >
                 <Plus size={16} />
                 <span>
@@ -275,7 +275,7 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
               {filteredActiveSessions.length > 0 && (
                 <button
                   onClick={() => setShowConfirmArchive(true)}
-                  className="bg-[#FFE8EC] hover:bg-[#FFD0D9] dark:bg-[#5A0026] dark:hover:bg-[#87003C] text-[#87003C] dark:text-[#FFBCCA] border border-[#FF91AC]/30 py-2.5 px-3 rounded-2xl font-semibold transition-all duration-200 flex items-center justify-center gap-1 shadow-sm active:scale-95 text-xs shrink-0 cursor-pointer"
+                  className="bg-[#F1F1F1] hover:bg-[#EAEAEA] dark:bg-[#242424] dark:hover:bg-[#353535] text-[#191919] dark:text-[#FAFAFA] border border-[#E0E0E0] dark:border-[#353535] py-2.5 px-3 rounded-2xl font-semibold transition-all duration-200 flex items-center justify-center gap-1 shadow-sm active:scale-95 text-xs shrink-0 cursor-pointer"
                   title={
                     selectedAgentFilter === "all"
                       ? "ארכב את כל השיחות הפעילות"
@@ -320,7 +320,7 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
                   onClick={() => setSelectedAgentFilter(agent.id)}
                   className={`px-3 py-1 rounded-full font-medium transition-all whitespace-nowrap flex items-center gap-1.5 text-xs shrink-0 cursor-pointer ${
                     isSelected
-                      ? "bg-[#FF91AC] text-[#191919] shadow-n8n-pink font-bold border border-[#FFBCCA]"
+                      ? "bg-[#191919] text-[#FAFAFA] dark:bg-[#FAFAFA] dark:text-[#191919] shadow-sm font-bold border border-transparent"
                       : "bg-[#F1F1F1] dark:bg-[#242424] text-[#676767] dark:text-[#A4A4A4] hover:bg-[#F8F8F8] dark:hover:bg-[#353535] border border-[#E0E0E0] dark:border-[#353535]"
                   }`}
                 >
@@ -334,13 +334,13 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
 
           {/* Confirm archive dialog */}
           {showConfirmArchive && (
-            <div className="mt-3 p-3 bg-[#FFE8EC] dark:bg-[#5A0026] border border-[#FF91AC]/40 rounded-2xl text-center space-y-2">
-              <p className="text-xs font-semibold text-[#87003C] dark:text-[#FFBCCA]">
+            <div className="mt-3 p-3 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/50 rounded-2xl text-center space-y-2">
+              <p className="text-xs font-semibold text-red-700 dark:text-red-300">
                 {selectedAgentFilter === "all"
                   ? "לארכב את כל היסטוריית השיחות?"
                   : `לארכב את השיחות עם ${filterAgent?.name}?`}
               </p>
-              <p className="text-[11px] text-[#87003C]/80 dark:text-[#FFBCCA]/80">
+              <p className="text-[11px] text-red-600/80 dark:text-red-300/80">
                 {selectedAgentFilter === "all"
                   ? "השיחות יועברו לארכיב ויישמרו שם. תמיד תוכל לחפש בהן ולשחזר אותן."
                   : `השיחות עם ${filterAgent?.name} יועברו לארכיב. שיחות עם שאר הסוכנים יישארו ללא שינוי.`}
@@ -348,7 +348,7 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
               <div className="flex gap-2 justify-center pt-1">
                 <button
                   onClick={handleConfirmArchive}
-                  className="bg-[#FF91AC] hover:bg-[#FFD0D9] text-[#191919] text-xs font-bold py-1.5 px-3 rounded-xl shadow-n8n-pink active:scale-95 transition-all cursor-pointer"
+                  className="bg-red-600 hover:bg-red-700 text-white text-xs font-bold py-1.5 px-3 rounded-xl shadow-sm active:scale-95 transition-all cursor-pointer"
                 >
                   כן, ארכב
                 </button>
@@ -390,7 +390,7 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
                     onClick={() => handleSelectSession(session.id)}
                     className={`group relative p-3 rounded-2xl cursor-pointer transition-all border ${
                       isSelected
-                        ? "bg-[#FFE8EC] dark:bg-[#242424] border-[#FF91AC] shadow-n8n-pink ring-1 ring-[#FF91AC]/40"
+                        ? "bg-[#EAEAEA] dark:bg-[#2E2E2E] border-[#BFBFBF] dark:border-[#555555] shadow-sm"
                         : "bg-[#FFFFFF] dark:bg-[#242424] border-[#E0E0E0] dark:border-[#353535] hover:border-[#BFBFBF] dark:hover:border-[#676767]"
                     }`}
                   >
@@ -409,11 +409,11 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
                               if (e.key === "Escape") handleCancelEdit(e);
                             }}
                             autoFocus
-                            className="flex-1 min-w-0 py-0.5 px-2 text-xs bg-white dark:bg-[#191919] border border-[#FF91AC] rounded-lg text-[#191919] dark:text-[#FAFAFA] focus:outline-none shadow-inner"
+                            className="flex-1 min-w-0 py-0.5 px-2 text-xs bg-white dark:bg-[#191919] border border-[#191919] dark:border-[#FAFAFA] rounded-lg text-[#191919] dark:text-[#FAFAFA] focus:outline-none shadow-inner"
                           />
                           <button
                             onClick={(e) => handleSaveEdit(session.id, e)}
-                            className="p-1 rounded-md text-[#FF91AC] hover:bg-black/10"
+                            className="p-1 rounded-md text-emerald-600 hover:bg-black/5"
                             title="שמור שינוי"
                           >
                             <Check size={14} />
@@ -434,7 +434,7 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
                           <div className="flex items-center gap-0.5 shrink-0 opacity-80 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                             <button
                               onClick={(e) => handleStartEdit(session, e)}
-                              className="text-[#868686] hover:text-[#FF91AC] p-1 rounded transition-colors"
+                              className="text-[#868686] hover:text-[#191919] dark:hover:text-[#FAFAFA] p-1 rounded transition-colors"
                               title="שנה שם שיחה"
                             >
                               <Pencil size={13} />
@@ -444,7 +444,7 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
                                 e.stopPropagation();
                                 onArchiveSession(session.id);
                               }}
-                              className="text-[#868686] hover:text-[#87003C] dark:hover:text-[#FF91AC] p-1 rounded transition-colors"
+                              className="text-[#868686] hover:text-[#191919] dark:hover:text-[#FAFAFA] p-1 rounded transition-colors"
                               title="העבר לארכיב"
                             >
                               <Archive size={13} />
@@ -528,7 +528,7 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
                     onClick={() => handleSelectSession(session.id)}
                     className={`group relative p-3 rounded-2xl cursor-pointer transition-all border ${
                       isSelected
-                        ? "bg-[#FFE8EC] dark:bg-[#242424] border-[#FF91AC] shadow-n8n-pink ring-1 ring-[#FF91AC]/40"
+                        ? "bg-[#EAEAEA] dark:bg-[#2E2E2E] border-[#BFBFBF] dark:border-[#555555] shadow-sm"
                         : "bg-[#FFFFFF] dark:bg-[#242424] border-[#E0E0E0] dark:border-[#353535] hover:border-[#BFBFBF] dark:hover:border-[#676767]"
                     }`}
                   >
@@ -547,11 +547,11 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
                               if (e.key === "Escape") handleCancelEdit(e);
                             }}
                             autoFocus
-                            className="flex-1 min-w-0 py-0.5 px-2 text-xs bg-white dark:bg-[#191919] border border-[#FF91AC] rounded-lg text-[#191919] dark:text-[#FAFAFA] focus:outline-none shadow-inner"
+                            className="flex-1 min-w-0 py-0.5 px-2 text-xs bg-white dark:bg-[#191919] border border-[#191919] dark:border-[#FAFAFA] rounded-lg text-[#191919] dark:text-[#FAFAFA] focus:outline-none shadow-inner"
                           />
                           <button
                             onClick={(e) => handleSaveEdit(session.id, e)}
-                            className="p-1 rounded-md text-[#FF91AC] hover:bg-black/10"
+                            className="p-1 rounded-md text-emerald-600 hover:bg-black/5"
                             title="שמור שינוי"
                           >
                             <Check size={14} />
@@ -572,7 +572,7 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
                           <div className="flex items-center gap-0.5 shrink-0 opacity-80 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                             <button
                               onClick={(e) => handleStartEdit(session, e)}
-                              className="text-[#868686] hover:text-[#FF91AC] p-1 rounded transition-colors"
+                              className="text-[#868686] hover:text-[#191919] dark:hover:text-[#FAFAFA] p-1 rounded transition-colors"
                               title="שנה שם שיחה"
                             >
                               <Pencil size={13} />
@@ -582,7 +582,7 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
                                 e.stopPropagation();
                                 onUnarchiveSession(session.id);
                               }}
-                              className="text-[#868686] hover:text-[#FF91AC] p-1 rounded transition-colors"
+                              className="text-[#868686] hover:text-[#191919] dark:hover:text-[#FAFAFA] p-1 rounded transition-colors"
                               title="שחזר לשיחות פעילות"
                             >
                               <ArchiveRestore size={13} />
@@ -603,7 +603,7 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
                     </div>
 
                     {snippet && (
-                      <div className="mb-2 p-1.5 bg-[#FFE8EC] dark:bg-[#5A0026] rounded-xl border border-[#FF91AC]/30 text-[10px] text-[#87003C] dark:text-[#FFBCCA] truncate">
+                      <div className="mb-2 p-1.5 bg-[#F1F1F1] dark:bg-[#191919] rounded-xl border border-[#E0E0E0] dark:border-[#353535] text-[10px] text-[#676767] dark:text-[#A4A4A4] truncate">
                         <span className="font-semibold ml-1">תוכן תואם:</span>
                         <span>{snippet}</span>
                       </div>
@@ -656,13 +656,13 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
                 setViewMode("archive");
                 setSearchQuery("");
               }}
-              className="w-full flex items-center justify-between py-2 px-3 text-xs font-semibold text-[#191919] dark:text-[#FAFAFA] hover:text-[#87003C] dark:hover:text-[#FF91AC] bg-[#FFFFFF] dark:bg-[#242424] rounded-2xl transition-all border border-[#E0E0E0] dark:border-[#353535] shadow-sm cursor-pointer"
+              className="w-full flex items-center justify-between py-2 px-3 text-xs font-semibold text-[#191919] dark:text-[#FAFAFA] hover:bg-[#F1F1F1] dark:hover:bg-[#353535] bg-[#FFFFFF] dark:bg-[#242424] rounded-2xl transition-all border border-[#E0E0E0] dark:border-[#353535] shadow-sm cursor-pointer"
             >
               <div className="flex items-center gap-2">
-                <Archive size={15} className="text-[#87003C] dark:text-[#FF91AC]" />
+                <Archive size={15} className="text-[#676767] dark:text-[#A4A4A4]" />
                 <span>ארכיב שיחות</span>
               </div>
-              <span className="n8n-capsule bg-[#FFE8EC] dark:bg-[#5A0026] text-[#87003C] dark:text-[#FFBCCA] text-[9px] font-bold">
+              <span className="n8n-capsule bg-[#F1F1F1] dark:bg-[#191919] text-[#676767] dark:text-[#A4A4A4] border border-[#E0E0E0] dark:border-[#353535] text-[9px] font-bold">
                 {archivedSessions.length}
               </span>
             </button>
@@ -673,13 +673,13 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
                 setViewMode("history");
                 setSearchQuery("");
               }}
-              className="w-full flex items-center justify-between py-2 px-3 text-xs font-semibold text-[#191919] dark:text-[#FAFAFA] hover:text-[#87003C] dark:hover:text-[#FF91AC] bg-[#FFFFFF] dark:bg-[#242424] rounded-2xl transition-all border border-[#E0E0E0] dark:border-[#353535] shadow-sm cursor-pointer"
+              className="w-full flex items-center justify-between py-2 px-3 text-xs font-semibold text-[#191919] dark:text-[#FAFAFA] hover:bg-[#F1F1F1] dark:hover:bg-[#353535] bg-[#FFFFFF] dark:bg-[#242424] rounded-2xl transition-all border border-[#E0E0E0] dark:border-[#353535] shadow-sm cursor-pointer"
             >
               <div className="flex items-center gap-2">
-                <MessageSquare size={15} className="text-[#FF91AC]" />
+                <MessageSquare size={15} className="text-[#676767] dark:text-[#A4A4A4]" />
                 <span>חזרה לשיחות פעילות</span>
               </div>
-              <span className="n8n-capsule bg-[#FFE8EC] dark:bg-[#5A0026] text-[#87003C] dark:text-[#FFBCCA] text-[9px] font-bold">
+              <span className="n8n-capsule bg-[#F1F1F1] dark:bg-[#191919] text-[#676767] dark:text-[#A4A4A4] border border-[#E0E0E0] dark:border-[#353535] text-[9px] font-bold">
                 {activeSessions.length}
               </span>
             </button>

@@ -60,11 +60,11 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
           >
             <MessageSquare
               size={16}
-              className={isLoggedIn ? "text-[#87003C] dark:text-[#FF91AC]" : "text-[#868686]"}
+              className={isLoggedIn ? "text-[#191919] dark:text-[#FAFAFA]" : "text-[#868686]"}
             />
             <span className="hidden xs:inline font-sans">שיחות</span>
             {isLoggedIn && sessionsCount > 0 && (
-              <span className="bg-[#FF91AC] text-[#191919] text-[10px] px-1.5 py-0.5 rounded-full font-mono font-bold leading-none">
+              <span className="bg-[#E0E0E0] dark:bg-[#353535] text-[#191919] dark:text-[#FAFAFA] text-[10px] px-1.5 py-0.5 rounded-full font-mono font-bold leading-none">
                 {sessionsCount}
               </span>
             )}
@@ -77,9 +77,9 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
             title={theme === "dark" ? "עבור לתבנית בהירה" : "עבור לתבנית כהה"}
           >
             {theme === "dark" ? (
-              <Sun size={17} className="text-[#FF91AC] hover:rotate-45 transition-transform" />
+              <Sun size={17} className="hover:rotate-45 transition-transform text-[#FAFAFA]" />
             ) : (
-              <Moon size={17} className="text-[#87003C] hover:-rotate-12 transition-transform" />
+              <Moon size={17} className="hover:-rotate-12 transition-transform text-[#191919]" />
             )}
           </button>
 
@@ -89,7 +89,7 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
             disabled={!isAdmin}
             className={`p-1.5 sm:p-2 rounded-xl border transition-all shadow-sm ${
               isAdmin
-                ? "bg-[#F1F1F1] dark:bg-[#242424] hover:bg-[#F8F8F8] dark:hover:bg-[#353535] text-[#191919] dark:text-[#FAFAFA] hover:text-[#87003C] dark:hover:text-[#FF91AC] border-[#E0E0E0] dark:border-[#353535] active:scale-95 cursor-pointer"
+                ? "bg-[#F1F1F1] dark:bg-[#242424] hover:bg-[#F8F8F8] dark:hover:bg-[#353535] text-[#191919] dark:text-[#FAFAFA] border-[#E0E0E0] dark:border-[#353535] active:scale-95 cursor-pointer"
                 : "bg-[#F1F1F1]/40 dark:bg-[#242424]/40 text-[#A4A4A4] dark:text-[#676767] border-[#E0E0E0]/40 dark:border-[#353535]/40 cursor-not-allowed opacity-30"
             }`}
             title={
@@ -112,9 +112,9 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
             }
           >
             {isLoggedIn ? (
-              <UserCheck size={17} className="text-[#FF91AC]" />
+              <UserCheck size={17} className="text-emerald-500" />
             ) : (
-              <LogIn size={17} className="text-[#87003C] dark:text-[#FF91AC]" />
+              <LogIn size={17} className="text-[#191919] dark:text-[#FAFAFA]" />
             )}
           </button>
         </div>
@@ -131,7 +131,7 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
             disabled={!isLoggedIn}
             className={`flex items-center gap-1.5 sm:gap-2 px-3 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-bold transition-all shadow-sm ${
               isLoggedIn
-                ? "bg-[#FF91AC] hover:bg-[#FFD0D9] text-[#191919] active:scale-95 cursor-pointer shadow-n8n-pink"
+                ? "bg-[#191919] hover:bg-[#333333] text-[#FAFAFA] dark:bg-[#FAFAFA] dark:hover:bg-[#EAEAEA] dark:text-[#191919] active:scale-95 cursor-pointer"
                 : "bg-[#F1F1F1] dark:bg-[#242424] text-[#868686] dark:text-[#676767] border border-[#E0E0E0] dark:border-[#353535] cursor-not-allowed opacity-50"
             }`}
             title={isLoggedIn ? "פתח ניהול והחלפת סוכנים" : "יש להתחבר כדי לבחור סוכנים"}

@@ -150,7 +150,7 @@ export const AgentDrawer: React.FC<AgentDrawerProps> = ({
             </button>
             <div>
               <h2 className="text-lg font-bold text-[#191919] dark:text-[#FAFAFA] flex items-center gap-2 font-sans">
-                <Settings2 className="text-[#FF91AC]" size={20} />
+                <Settings2 className="text-[#191919] dark:text-[#FAFAFA]" size={20} />
                 <span>ניהול והחלפת סוכנים</span>
               </h2>
               <p className="text-xs text-[#676767] dark:text-[#A4A4A4] mt-0.5">
@@ -162,7 +162,7 @@ export const AgentDrawer: React.FC<AgentDrawerProps> = ({
           {!isCreating && !editingAgent && currentUser?.role === "admin" && (
             <button
               onClick={startCreate}
-              className="bg-[#FF91AC] hover:bg-[#FFD0D9] text-[#191919] text-xs font-bold py-2 px-3 rounded-2xl flex items-center gap-1.5 transition-all shadow-n8n-pink active:scale-95 cursor-pointer"
+              className="bg-[#191919] hover:bg-[#333333] text-[#FAFAFA] dark:bg-[#FAFAFA] dark:hover:bg-[#EAEAEA] dark:text-[#191919] text-xs font-bold py-2 px-3 rounded-2xl flex items-center gap-1.5 transition-all shadow-sm active:scale-95 cursor-pointer"
             >
               <Plus size={16} />
               <span>סוכן חדש</span>
@@ -176,7 +176,7 @@ export const AgentDrawer: React.FC<AgentDrawerProps> = ({
           {(isCreating || editingAgent) && (
             <form
               onSubmit={handleSubmit}
-              className="bg-[#FFFFFF] dark:bg-[#242424] border border-[#FF91AC]/50 rounded-2xl p-4 space-y-3 shadow-lg"
+              className="bg-[#FFFFFF] dark:bg-[#242424] border border-[#E0E0E0] dark:border-[#353535] rounded-2xl p-4 space-y-3 shadow-lg"
             >
               <div className="flex items-center justify-between border-b border-[#E0E0E0] dark:border-[#353535] pb-2">
                 <h3 className="text-sm font-semibold text-[#191919] dark:text-[#FAFAFA]">
@@ -201,7 +201,7 @@ export const AgentDrawer: React.FC<AgentDrawerProps> = ({
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="למשל: שוקי / יועץ תוכן"
-                  className="w-full bg-[#F1F1F1] dark:bg-[#191919] text-[#191919] dark:text-[#FAFAFA] text-xs p-2.5 rounded-xl border border-[#E0E0E0] dark:border-[#353535] focus:border-[#FF91AC] focus:outline-none"
+                  className="w-full bg-[#F1F1F1] dark:bg-[#191919] text-[#191919] dark:text-[#FAFAFA] text-xs p-2.5 rounded-xl border border-[#E0E0E0] dark:border-[#353535] focus:border-[#191919] dark:focus:border-[#FAFAFA] focus:outline-none"
                 />
               </div>
 
@@ -214,7 +214,7 @@ export const AgentDrawer: React.FC<AgentDrawerProps> = ({
                   value={role}
                   onChange={(e) => setRole(e.target.value)}
                   placeholder="למשל: עוזר אישי, מומחה תוכן, מנתח נתונים"
-                  className="w-full bg-[#F1F1F1] dark:bg-[#191919] text-[#191919] dark:text-[#FAFAFA] text-xs p-2.5 rounded-xl border border-[#E0E0E0] dark:border-[#353535] focus:border-[#FF91AC] focus:outline-none"
+                  className="w-full bg-[#F1F1F1] dark:bg-[#191919] text-[#191919] dark:text-[#FAFAFA] text-xs p-2.5 rounded-xl border border-[#E0E0E0] dark:border-[#353535] focus:border-[#191919] dark:focus:border-[#FAFAFA] focus:outline-none"
                 />
               </div>
 
@@ -227,14 +227,14 @@ export const AgentDrawer: React.FC<AgentDrawerProps> = ({
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="כמה מילים על תחום ההתמחות של הסוכן..."
-                  className="w-full bg-[#F1F1F1] dark:bg-[#191919] text-[#191919] dark:text-[#FAFAFA] text-xs p-2 rounded-xl border border-[#E0E0E0] dark:border-[#353535] focus:border-[#FF91AC] focus:outline-none resize-none"
+                  className="w-full bg-[#F1F1F1] dark:bg-[#191919] text-[#191919] dark:text-[#FAFAFA] text-xs p-2 rounded-xl border border-[#E0E0E0] dark:border-[#353535] focus:border-[#191919] dark:focus:border-[#FAFAFA] focus:outline-none resize-none"
                 />
               </div>
 
               <div>
                 <label className="block text-xs font-medium text-[#191919] dark:text-[#FAFAFA] mb-1 flex items-center justify-between font-sans">
                   <span>כתובת n8n Webhook URL *</span>
-                  <span className="text-[10px] text-[#87003C] dark:text-[#FF91AC] font-mono">ייחודי לסוכן זה</span>
+                  <span className="text-[10px] text-[#676767] dark:text-[#A4A4A4] font-mono">ייחודי לסוכן זה</span>
                 </label>
                 <input
                   type="text"
@@ -242,7 +242,7 @@ export const AgentDrawer: React.FC<AgentDrawerProps> = ({
                   value={webhookUrl}
                   onChange={(e) => setWebhookUrl(e.target.value)}
                   placeholder="https://n8n.yourdomain.com/webhook/..."
-                  className="w-full bg-[#F1F1F1] dark:bg-[#191919] text-[#191919] dark:text-[#FAFAFA] text-xs p-2.5 rounded-xl border border-[#E0E0E0] dark:border-[#353535] focus:border-[#FF91AC] focus:outline-none font-mono"
+                  className="w-full bg-[#F1F1F1] dark:bg-[#191919] text-[#191919] dark:text-[#FAFAFA] text-xs p-2.5 rounded-xl border border-[#E0E0E0] dark:border-[#353535] focus:border-[#191919] dark:focus:border-[#FAFAFA] focus:outline-none font-mono"
                   dir="ltr"
                 />
               </div>
@@ -257,7 +257,7 @@ export const AgentDrawer: React.FC<AgentDrawerProps> = ({
                     href="https://lucide.dev/icons"
                     target="_blank"
                     rel="noreferrer"
-                    className="text-[11px] text-[#87003C] hover:text-[#FF91AC] dark:text-[#FF91AC] flex items-center gap-1 font-mono"
+                    className="text-[11px] text-[#676767] hover:text-[#191919] dark:text-[#A4A4A4] dark:hover:text-[#FAFAFA] flex items-center gap-1 font-mono"
                     title="פתח את מאגר האייקונים ב-lucide.dev"
                   >
                     <span>lucide.dev</span>
@@ -272,14 +272,14 @@ export const AgentDrawer: React.FC<AgentDrawerProps> = ({
                       value={avatarIcon}
                       onChange={(e) => setAvatarIcon(e.target.value)}
                       placeholder="bot, sparkles, brain, camera, film, code..."
-                      className="w-full bg-[#F1F1F1] dark:bg-[#191919] text-[#191919] dark:text-[#FAFAFA] text-xs p-2.5 rounded-xl border border-[#E0E0E0] dark:border-[#353535] focus:border-[#FF91AC] focus:outline-none font-mono"
+                      className="w-full bg-[#F1F1F1] dark:bg-[#191919] text-[#191919] dark:text-[#FAFAFA] text-xs p-2.5 rounded-xl border border-[#E0E0E0] dark:border-[#353535] focus:border-[#191919] dark:focus:border-[#FAFAFA] focus:outline-none font-mono"
                       dir="ltr"
                     />
                   </div>
 
                   {/* Live preview badge */}
                   <div
-                    className="w-10 h-10 rounded-2xl bg-[#FF91AC] text-[#191919] flex items-center justify-center shadow-n8n-pink flex-shrink-0 border border-[#FFBCCA]"
+                    className="w-10 h-10 rounded-2xl bg-[#191919] text-[#FAFAFA] dark:bg-[#FAFAFA] dark:text-[#191919] flex items-center justify-center shadow-sm flex-shrink-0 border border-[#E0E0E0] dark:border-[#353535]"
                     title={`תצוגה מקדימה: ${normalizeIconName(avatarIcon)}`}
                   >
                     <DynamicLucideIcon name={avatarIcon} size={20} />
@@ -312,7 +312,7 @@ export const AgentDrawer: React.FC<AgentDrawerProps> = ({
                         onClick={() => setAvatarIcon(ic)}
                         className={`px-2 py-1 rounded-full text-[11px] font-mono flex items-center gap-1 border transition-all cursor-pointer ${
                           avatarIcon.toLowerCase().trim() === ic
-                            ? "bg-[#FF91AC] text-[#191919] border-[#FFBCCA] font-bold"
+                            ? "bg-[#191919] text-[#FAFAFA] dark:bg-[#FAFAFA] dark:text-[#191919] border-transparent font-bold"
                             : "bg-[#F1F1F1] dark:bg-[#191919] text-[#676767] dark:text-[#A4A4A4] border-[#E0E0E0] dark:border-[#353535] hover:bg-[#EAEAEA]"
                         }`}
                       >
@@ -337,7 +337,7 @@ export const AgentDrawer: React.FC<AgentDrawerProps> = ({
                       onClick={() => setColor(col.value)}
                       className={`w-7 h-7 rounded-full bg-gradient-to-r ${col.value} border-2 transition-all cursor-pointer ${
                         color === col.value
-                          ? "border-[#FF91AC] scale-110 shadow-md ring-2 ring-[#FF91AC]/40"
+                          ? "border-[#191919] dark:border-[#FAFAFA] scale-110 shadow-sm ring-2 ring-black/20 dark:ring-white/20"
                           : "border-transparent opacity-75 hover:opacity-100"
                       }`}
                       title={col.label}
@@ -356,7 +356,7 @@ export const AgentDrawer: React.FC<AgentDrawerProps> = ({
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-1.5 text-xs bg-[#FF91AC] hover:bg-[#FFD0D9] text-[#191919] font-bold rounded-2xl shadow-n8n-pink active:scale-95 cursor-pointer"
+                  className="px-4 py-1.5 text-xs bg-[#191919] hover:bg-[#333333] text-[#FAFAFA] dark:bg-[#FAFAFA] dark:hover:bg-[#EAEAEA] dark:text-[#191919] font-bold rounded-2xl shadow-sm active:scale-95 cursor-pointer"
                 >
                   שמור סוכן
                 </button>
@@ -380,14 +380,14 @@ export const AgentDrawer: React.FC<AgentDrawerProps> = ({
                   }}
                   className={`p-3.5 rounded-2xl border transition-all cursor-pointer ${
                     isActive
-                      ? "bg-[#FFE8EC] dark:bg-[#242424] border-[#FF91AC] shadow-n8n-pink ring-1 ring-[#FF91AC]/40"
+                      ? "bg-[#EAEAEA] dark:bg-[#2E2E2E] border-[#191919] dark:border-[#FAFAFA] shadow-sm"
                       : "bg-[#FFFFFF] dark:bg-[#242424] border-[#E0E0E0] dark:border-[#353535] hover:border-[#BFBFBF] dark:hover:border-[#676767]"
                   }`}
                 >
                   <div className="flex items-start gap-3">
                     {/* Avatar */}
                     <div
-                      className="w-11 h-11 rounded-2xl bg-[#FF91AC] text-[#191919] flex items-center justify-center flex-shrink-0 shadow-sm border border-[#FFBCCA]"
+                      className="w-11 h-11 rounded-2xl bg-[#191919] text-[#FAFAFA] dark:bg-[#FAFAFA] dark:text-[#191919] flex items-center justify-center flex-shrink-0 shadow-sm border border-[#E0E0E0] dark:border-[#353535]"
                     >
                       <DynamicLucideIcon name={agent.avatarIcon} size={22} />
                     </div>
@@ -400,8 +400,8 @@ export const AgentDrawer: React.FC<AgentDrawerProps> = ({
                             {agent.name}
                           </h4>
                           {isActive && (
-                            <span className="n8n-capsule bg-[#FF91AC] text-[#191919] text-[9px] font-bold gap-1">
-                              <span className="w-1.5 h-1.5 bg-[#191919] rounded-full animate-pulse" />
+                            <span className="n8n-capsule bg-[#191919] text-[#FAFAFA] dark:bg-[#FAFAFA] dark:text-[#191919] text-[9px] font-bold gap-1">
+                              <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
                               פעיל
                             </span>
                           )}
@@ -416,7 +416,7 @@ export const AgentDrawer: React.FC<AgentDrawerProps> = ({
                                 e.stopPropagation();
                                 startEdit(agent);
                               }}
-                              className="p-1.5 text-[#868686] hover:text-[#FF91AC] rounded-lg transition-colors cursor-pointer"
+                              className="p-1.5 text-[#868686] hover:text-[#191919] dark:hover:text-[#FAFAFA] rounded-lg transition-colors cursor-pointer"
                               title="ערוך פרטים, אייקון ו-Webhook"
                             >
                               <Edit2 size={15} />
@@ -438,7 +438,7 @@ export const AgentDrawer: React.FC<AgentDrawerProps> = ({
                         )}
                       </div>
 
-                      <p className="text-xs text-[#87003C] dark:text-[#FF91AC] font-medium mt-0.5 font-mono">
+                      <p className="text-xs text-[#676767] dark:text-[#A4A4A4] font-medium mt-0.5 font-mono">
                         {agent.role}
                       </p>
 
@@ -468,7 +468,7 @@ export const AgentDrawer: React.FC<AgentDrawerProps> = ({
                                 e.stopPropagation();
                                 startEdit(agent);
                               }}
-                              className="text-[#87003C] dark:text-[#FF91AC] hover:underline text-[10px] mr-1 flex-shrink-0 cursor-pointer"
+                              className="text-[#676767] hover:text-[#191919] dark:text-[#A4A4A4] dark:hover:text-[#FAFAFA] hover:underline text-[10px] mr-1 flex-shrink-0 cursor-pointer"
                               title="ערוך כתובת Webhook"
                             >
                               (ערוך)
@@ -477,7 +477,7 @@ export const AgentDrawer: React.FC<AgentDrawerProps> = ({
                         </div>
 
                         {isActive ? (
-                          <span className="n8n-capsule bg-[#FF91AC] text-[#191919] text-[10px] font-bold gap-1">
+                          <span className="n8n-capsule bg-[#191919] text-[#FAFAFA] dark:bg-[#FAFAFA] dark:text-[#191919] text-[10px] font-bold gap-1">
                             <Check size={12} className="stroke-[3]" />
                             <span>נבחר</span>
                           </span>
@@ -489,7 +489,7 @@ export const AgentDrawer: React.FC<AgentDrawerProps> = ({
                               onSelectAgent(agent.id);
                               onClose();
                             }}
-                            className="bg-[#191919] dark:bg-[#FAFAFA] text-[#FAFAFA] dark:text-[#191919] hover:bg-[#FF91AC] hover:text-[#191919] dark:hover:bg-[#FF91AC] dark:hover:text-[#191919] text-xs font-bold py-1 px-3 rounded-full flex items-center gap-1 shadow-sm active:scale-95 transition-all cursor-pointer"
+                            className="bg-[#191919] dark:bg-[#FAFAFA] text-[#FAFAFA] dark:text-[#191919] hover:bg-[#333333] dark:hover:bg-[#EAEAEA] text-xs font-bold py-1 px-3 rounded-full flex items-center gap-1 shadow-sm active:scale-95 transition-all cursor-pointer"
                           >
                             <Check size={12} />
                             <span>בחר</span>
@@ -516,7 +516,7 @@ export const AgentDrawer: React.FC<AgentDrawerProps> = ({
                 onLogout();
                 onClose();
               }}
-              className="w-full bg-[#FFE8EC] hover:bg-[#FFD0D9] dark:bg-[#44001B] dark:hover:bg-[#5A0026] text-[#87003C] dark:text-[#FFBCCA] border border-[#FF91AC]/30 py-2.5 px-3 rounded-2xl font-bold text-xs flex items-center justify-center gap-2 transition-all shadow-sm active:scale-95 cursor-pointer"
+              className="w-full bg-[#FFFFFF] hover:bg-red-50 dark:bg-[#242424] dark:hover:bg-red-950/20 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-900/40 py-2.5 px-3 rounded-2xl font-bold text-xs flex items-center justify-center gap-2 transition-all shadow-sm active:scale-95 cursor-pointer"
               title="התנתק מהמערכת"
             >
               <LogOut size={15} />
