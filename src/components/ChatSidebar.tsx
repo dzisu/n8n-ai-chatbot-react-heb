@@ -19,6 +19,7 @@ interface ChatSidebarProps {
   onCreateNewSession: () => void;
   onSwitchSession: (sessionId: string) => void;
   onDeleteSession: (sessionId: string) => void;
+  onClearAllHistory: () => void;
   onExportChat: () => void;
   hasMessages: boolean;
 }
@@ -32,9 +33,12 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
   onCreateNewSession,
   onSwitchSession,
   onDeleteSession,
+  onClearAllHistory,
   onExportChat,
   hasMessages,
 }) => {
+  const [showConfirmClear, setShowConfirmClear] = React.useState(false);
+
   if (!isOpen) return null;
 
   const getAgentForSession = (agentId?: string) => {
@@ -80,13 +84,54 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
             </button>
           </div>
 
-          <button
-            onClick={handleCreateNew}
-            className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white py-2.5 px-4 rounded-xl font-medium transition-all duration-200 flex items-center justify-center gap-2 shadow-md active:scale-98 text-sm"
-          >
-            <Plus size={18} />
-            <span>שיחה חדשה</span>
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleCreateNew}
+              className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white py-2 px-3 rounded-xl font-medium transition-all duration-200 flex items-center justify-center gap-1.5 shadow-md active:scale-98 text-xs sm:text-sm"
+            >
+              <Plus size={16} />
+              <span>שיחה חדשה</span>
+            </button>
+            {chatSessions.length > 0 && (
+              <button
+                onClick={() => setShowConfirmClear(true)}
+                className="bg-red-50 hover:bg-red-100 dark:bg-red-950/40 dark:hover:bg-red-900/60 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800/60 py-2 px-3 rounded-xl font-medium transition-all duration-200 flex items-center justify-center gap-1 shadow-sm active:scale-98 text-xs"
+                title="נקה את כל ההיסטוריה"
+              >
+                <Trash2 size={15} />
+                <span>נקה הכל</span>
+              </button>
+            )}
+          </div>
+
+          {showConfirmClear && (
+            <div className="mt-3 p-3 bg-red-50 dark:bg-red-950/60 border border-red-200 dark:border-red-800/70 rounded-xl text-center space-y-2">
+              <p className="text-xs font-semibold text-red-700 dark:text-red-300">
+                למחוק את כל היסטוריית השיחות?
+              </p>
+              <p className="text-[11px] text-red-600/80 dark:text-red-400">
+                פעולה זו תמחק את כל השיחות מהמכשיר ותפתח שיחה חדשה נקייה.
+              </p>
+              <div className="flex gap-2 justify-center pt-1">
+                <button
+                  onClick={() => {
+                    onClearAllHistory();
+                    setShowConfirmClear(false);
+                    onClose();
+                  }}
+                  className="bg-red-600 hover:bg-red-700 text-white text-xs font-medium py-1.5 px-3 rounded-lg shadow-sm active:scale-95 transition-all"
+                >
+                  כן, מחק הכל
+                </button>
+                <button
+                  onClick={() => setShowConfirmClear(false)}
+                  className="bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs py-1.5 px-3 rounded-lg border border-slate-300 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-700 transition-all"
+                >
+                  ביטול
+                </button>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Sessions List */}
@@ -119,7 +164,7 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
                         e.stopPropagation();
                         onDeleteSession(session.id);
                       }}
-                      className="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-red-500 p-1 rounded transition-opacity"
+                      className="opacity-70 sm:opacity-0 sm:group-hover:opacity-100 text-slate-400 hover:text-red-500 p-1.5 rounded transition-all"
                       title="מחק שיחה"
                     >
                       <Trash2 size={14} />

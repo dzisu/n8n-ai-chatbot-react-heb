@@ -64,6 +64,7 @@ const N8NChatbot: React.FC = () => {
     createNewSession,
     switchSession,
     deleteSession,
+    clearAllSessions,
     updateMessages,
     saveCurrentSession,
     updateSessionAgent,
@@ -192,6 +193,7 @@ const N8NChatbot: React.FC = () => {
         onCreateNewSession={handleCreateNewSession}
         onSwitchSession={handleSwitchSession}
         onDeleteSession={deleteSession}
+        onClearAllHistory={() => clearAllSessions(activeAgent?.id)}
         onExportChat={handleExportChat}
         hasMessages={messages.length > 0}
       />

@@ -132,6 +132,7 @@ export class StorageService {
         content: msg.content,
         timestamp: msg.timestamp,
         agentName: msg.agentName,
+        attachment: msg.attachment ? { name: msg.attachment.name, size: msg.attachment.size, type: msg.attachment.type } : undefined,
       })),
     };
 

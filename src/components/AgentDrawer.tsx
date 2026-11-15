@@ -372,10 +372,14 @@ export const AgentDrawer: React.FC<AgentDrawerProps> = ({
               return (
                 <div
                   key={agent.id}
-                  className={`p-3.5 rounded-xl border transition-all ${
+                  onClick={() => {
+                    onSelectAgent(agent.id);
+                    onClose();
+                  }}
+                  className={`p-3.5 rounded-xl border transition-all cursor-pointer ${
                     isActive
-                      ? "bg-blue-50/90 dark:bg-blue-600/15 border-blue-400 dark:border-blue-500/50 shadow-md ring-1 ring-blue-500/30"
-                      : "bg-slate-50/80 dark:bg-slate-800/40 border-slate-200/80 dark:border-slate-700/50 hover:bg-slate-100 dark:hover:bg-slate-800/70"
+                      ? "bg-blue-50/90 dark:bg-blue-600/15 border-blue-500 dark:border-blue-500/60 shadow-md ring-2 ring-blue-500/30"
+                      : "bg-slate-50/80 dark:bg-slate-800/40 border-slate-200/80 dark:border-slate-700/50 hover:bg-slate-100 dark:hover:bg-slate-800/70 hover:border-blue-300 dark:hover:border-blue-500/40"
                   }`}
                 >
                   <div className="flex items-start gap-3">
@@ -406,19 +410,27 @@ export const AgentDrawer: React.FC<AgentDrawerProps> = ({
                         {/* Actions */}
                         <div className="flex items-center gap-1">
                           <button
-                            onClick={() => startEdit(agent)}
-                            className="p-1 text-slate-400 hover:text-blue-500 dark:hover:text-blue-300 hover:bg-slate-200 dark:hover:bg-slate-700/60 rounded transition-colors"
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              startEdit(agent);
+                            }}
+                            className="p-1.5 text-slate-400 hover:text-blue-500 dark:hover:text-blue-300 hover:bg-slate-200 dark:hover:bg-slate-700/60 rounded-lg transition-colors"
                             title="ערוך פרטים, אייקון ו-Webhook"
                           >
-                            <Edit2 size={14} />
+                            <Edit2 size={15} />
                           </button>
                           {!agent.isDefault && (
                             <button
-                              onClick={() => onDeleteAgent(agent.id)}
-                              className="p-1 text-slate-400 hover:text-red-500 hover:bg-slate-200 dark:hover:bg-slate-700/60 rounded transition-colors"
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onDeleteAgent(agent.id);
+                              }}
+                              className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-slate-200 dark:hover:bg-slate-700/60 rounded-lg transition-colors"
                               title="מחק סוכן"
                             >
-                              <Trash2 size={14} />
+                              <Trash2 size={15} />
                             </button>
                           )}
                         </div>
@@ -434,9 +446,9 @@ export const AgentDrawer: React.FC<AgentDrawerProps> = ({
                         </p>
                       )}
 
-                      {/* Webhook indicator */}
-                      <div className="mt-2 pt-2 border-t border-slate-200 dark:border-slate-700/40 flex items-center justify-between text-[11px]">
-                        <div className="flex items-center gap-1 truncate text-slate-500 dark:text-slate-400 max-w-[180px]">
+                      {/* Selection and Webhook indicator row */}
+                      <div className="mt-2.5 pt-2 border-t border-slate-200 dark:border-slate-700/40 flex items-center justify-between text-[11px]">
+                        <div className="flex items-center gap-1 truncate text-slate-500 dark:text-slate-400 max-w-[170px]">
                           <Globe size={12} className="flex-shrink-0 text-slate-400" />
                           <span
                             className="font-mono text-[10px] truncate"
@@ -444,32 +456,40 @@ export const AgentDrawer: React.FC<AgentDrawerProps> = ({
                             title={agent.webhookUrl}
                           >
                             {hasPlaceholderWebhook
-                              ? "טרם הוגדר Webhook"
+                              ? "ברירת מחדל"
                               : agent.webhookUrl.replace(/^https?:\/\//, "")}
                           </span>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              startEdit(agent);
+                            }}
+                            className="text-blue-500 hover:underline text-[10px] mr-1 flex-shrink-0"
+                            title="ערוך כתובת Webhook"
+                          >
+                            (ערוך)
+                          </button>
                         </div>
 
-                        {hasPlaceholderWebhook ? (
+                        {isActive ? (
+                          <span className="bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 text-[11px] px-2.5 py-1 rounded-full font-semibold border border-emerald-500/30 flex items-center gap-1 shadow-sm">
+                            <Check size={13} className="stroke-[2.5]" />
+                            <span>פעיל כעת</span>
+                          </span>
+                        ) : (
                           <button
-                            onClick={() => startEdit(agent)}
-                            className="text-amber-500 dark:text-amber-400 text-[10px] flex items-center gap-1 hover:underline font-medium"
-                          >
-                            <AlertTriangle size={11} />
-                            הגדר כתובת
-                          </button>
-                        ) : !isActive ? (
-                          <button
-                            onClick={() => {
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
                               onSelectAgent(agent.id);
                               onClose();
                             }}
-                            className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 text-xs font-medium flex items-center gap-1"
+                            className="bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold py-1 px-3 rounded-lg flex items-center gap-1 shadow-sm active:scale-95 transition-all"
                           >
-                            <span>בחר סוכן</span>
                             <Check size={13} />
+                            <span>בחר סוכן</span>
                           </button>
-                        ) : (
-                          <span className="text-emerald-600 dark:text-emerald-400 text-[10px] font-medium">נבחר לשיחה</span>
                         )}
                       </div>
                     </div>

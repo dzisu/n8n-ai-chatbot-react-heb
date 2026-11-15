@@ -1,3 +1,11 @@
+export interface FileAttachment {
+  name: string;
+  type: string;
+  size: number;
+  dataUrl?: string;
+  isImage?: boolean;
+}
+
 export interface Message {
   id: string;
   content: string;
@@ -5,6 +13,7 @@ export interface Message {
   timestamp: Date;
   agentId?: string;
   agentName?: string;
+  attachment?: FileAttachment;
 }
 
 export interface Agent {
@@ -33,6 +42,7 @@ export interface N8NWebhookPayload {
   timestamp: string;
   agentId?: string;
   agentName?: string;
+  file?: FileAttachment;
 }
 
 export interface N8NWebhookResponse {

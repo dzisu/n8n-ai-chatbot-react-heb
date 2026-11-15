@@ -154,6 +154,22 @@ export const useChatSessions = (initialAgentId: string = "shuki") => {
     });
   }, []);
 
+  const clearAllSessions = useCallback((agentId?: string): void => {
+    const newId = Date.now().toString();
+    const freshSession: ChatSession = {
+      id: newId,
+      title: "שיחה חדשה",
+      agentId: agentId || initialAgentId,
+      messages: [],
+      createdAt: new Date(),
+      lastUpdated: new Date(),
+    };
+    setChatSessions([freshSession]);
+    setCurrentSessionId(newId);
+    setMessages([]);
+    StorageService.saveSessions([freshSession]);
+  }, [initialAgentId]);
+
   return {
     chatSessions,
     currentSessionId,
@@ -162,6 +178,7 @@ export const useChatSessions = (initialAgentId: string = "shuki") => {
     createNewSession,
     switchSession,
     deleteSession,
+    clearAllSessions,
     updateMessages,
     saveCurrentSession,
     updateSessionAgent,

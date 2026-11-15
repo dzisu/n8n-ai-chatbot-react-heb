@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Message, N8NWebhookPayload, Agent } from "../types/chat";
+import { Message, N8NWebhookPayload, Agent, FileAttachment } from "../types/chat";
 import { N8NService } from "../services/n8nService";
 
 export const useChat = (
@@ -11,14 +11,18 @@ export const useChat = (
 ) => {
   const [isLoading, setIsLoading] = useState(false);
 
-  const sendMessage = async (content: string): Promise<void> => {
-    if (!content.trim() || isLoading) return;
+  const sendMessage = async (
+    content: string,
+    attachment?: FileAttachment
+  ): Promise<void> => {
+    if ((!content.trim() && !attachment) || isLoading) return;
 
     const userMessage: Message = {
       id: Date.now().toString(),
-      content,
+      content: content.trim(),
       sender: "user",
       timestamp: new Date(),
+      attachment,
     };
 
     const updatedMessages = [...messages, userMessage];
@@ -27,11 +31,12 @@ export const useChat = (
 
     try {
       const payload: N8NWebhookPayload = {
-        message: content,
+        message: content.trim(),
         sessionId: currentSessionId,
         timestamp: new Date().toISOString(),
         agentId: activeAgent?.id,
         agentName: activeAgent?.name,
+        file: attachment,
       };
 
       const webhookUrl = activeAgent?.webhookUrl;
