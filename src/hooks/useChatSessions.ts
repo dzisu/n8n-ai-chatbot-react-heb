@@ -11,7 +11,9 @@ export const useChatSessions = (initialAgentId: string = "shuki") => {
     const savedSessions = StorageService.loadSessions();
     setChatSessions(savedSessions);
 
-    if (savedSessions.length === 0) {
+    const activeSessions = savedSessions.filter((s) => !s.isArchived);
+
+    if (activeSessions.length === 0) {
       const initialId = Date.now().toString();
       const newSession: ChatSession = {
         id: initialId,
@@ -20,16 +22,18 @@ export const useChatSessions = (initialAgentId: string = "shuki") => {
         messages: [],
         createdAt: new Date(),
         lastUpdated: new Date(),
+        isArchived: false,
       };
-      setChatSessions([newSession]);
+      const initialList = [newSession, ...savedSessions];
+      setChatSessions(initialList);
       setCurrentSessionId(initialId);
       setMessages([]);
-      StorageService.saveSessions([newSession]);
+      StorageService.saveSessions(initialList);
     } else {
-      // Prefer the most recent session for initialAgentId if exists, otherwise first session
+      // Prefer the most recent active session for initialAgentId if exists, otherwise first active session
       const matching =
-        savedSessions.find((s) => s.agentId === initialAgentId) ||
-        savedSessions[0];
+        activeSessions.find((s) => s.agentId === initialAgentId) ||
+        activeSessions[0];
       setCurrentSessionId(matching.id);
       setMessages(matching.messages);
     }
@@ -46,11 +50,14 @@ export const useChatSessions = (initialAgentId: string = "shuki") => {
         messages: [],
         createdAt: new Date(),
         lastUpdated: new Date(),
+        isArchived: false,
       };
 
       setChatSessions((prev) => {
-        // Prune any existing empty sessions so they don't pile up
-        const cleaned = prev.filter((s) => s.messages.length > 0);
+        // Prune any existing empty unarchived sessions so they don't pile up
+        const cleaned = prev.filter(
+          (s) => s.isArchived || s.messages.length > 0
+        );
         const updated = [newSession, ...cleaned];
         StorageService.saveSessions(updated);
         return updated;
@@ -90,10 +97,10 @@ export const useChatSessions = (initialAgentId: string = "shuki") => {
 
       if (!target) return undefined;
 
-      // Clean up previous session if it was completely empty
+      // Clean up previous session if it was completely empty and not archived
       setChatSessions((prev) => {
         const cleaned = prev.filter(
-          (s) => s.id === sessionId || s.messages.length > 0
+          (s) => s.id === sessionId || s.isArchived || s.messages.length > 0
         );
         StorageService.saveSessions(cleaned);
         return cleaned;
@@ -106,6 +113,115 @@ export const useChatSessions = (initialAgentId: string = "shuki") => {
     [chatSessions]
   );
 
+  const renameSession = useCallback(
+    (sessionId: string, newTitle: string): void => {
+      const trimmed = newTitle.trim();
+      if (!trimmed) return;
+
+      setChatSessions((prev) => {
+        const updated = prev.map((s) =>
+          s.id === sessionId ? { ...s, title: trimmed, lastUpdated: new Date() } : s
+        );
+        StorageService.saveSessions(updated);
+        return updated;
+      });
+    },
+    []
+  );
+
+  const archiveSession = useCallback(
+    (sessionId: string): void => {
+      setChatSessions((prev) => {
+        const updated = prev.map((s) =>
+          s.id === sessionId ? { ...s, isArchived: true, lastUpdated: new Date() } : s
+        );
+        StorageService.saveSessions(updated);
+
+        // If currently viewed session was archived, switch to another active session or create new
+        if (currentSessionId === sessionId) {
+          const remainingActive = updated.filter((s) => !s.isArchived);
+          if (remainingActive.length > 0) {
+            setCurrentSessionId(remainingActive[0].id);
+            setMessages(remainingActive[0].messages);
+          } else {
+            const newId = Date.now().toString();
+            const freshSession: ChatSession = {
+              id: newId,
+              title: "שיחה חדשה",
+              agentId: initialAgentId,
+              messages: [],
+              createdAt: new Date(),
+              lastUpdated: new Date(),
+              isArchived: false,
+            };
+            const nextSessions = [freshSession, ...updated];
+            StorageService.saveSessions(nextSessions);
+            setCurrentSessionId(newId);
+            setMessages([]);
+            return nextSessions;
+          }
+        }
+
+        return updated;
+      });
+    },
+    [currentSessionId, initialAgentId]
+  );
+
+  const unarchiveSession = useCallback(
+    (sessionId: string): void => {
+      setChatSessions((prev) => {
+        const updated = prev.map((s) =>
+          s.id === sessionId ? { ...s, isArchived: false, lastUpdated: new Date() } : s
+        );
+        StorageService.saveSessions(updated);
+        return updated;
+      });
+    },
+    []
+  );
+
+  const archiveAllSessions = useCallback(
+    (agentId?: string): void => {
+      setChatSessions((prev) => {
+        const updated = prev.map((s) => {
+          if (!s.isArchived) {
+            if (!agentId || s.agentId === agentId) {
+              if (s.messages.length > 0) {
+                return { ...s, isArchived: true, lastUpdated: new Date() };
+              }
+            }
+          }
+          return s;
+        });
+
+        // Filter out empty sessions
+        const cleaned = updated.filter(
+          (s) => s.isArchived || s.messages.length > 0
+        );
+
+        // Create a new fresh active session for the agent
+        const newId = Date.now().toString();
+        const freshSession: ChatSession = {
+          id: newId,
+          title: "שיחה חדשה",
+          agentId: agentId || initialAgentId,
+          messages: [],
+          createdAt: new Date(),
+          lastUpdated: new Date(),
+          isArchived: false,
+        };
+
+        const finalSessions = [freshSession, ...cleaned];
+        StorageService.saveSessions(finalSessions);
+        setCurrentSessionId(newId);
+        setMessages([]);
+        return finalSessions;
+      });
+    },
+    [initialAgentId]
+  );
+
   const deleteSession = useCallback(
     (sessionId: string): void => {
       setChatSessions((prev) => {
@@ -113,9 +229,10 @@ export const useChatSessions = (initialAgentId: string = "shuki") => {
         StorageService.saveSessions(filtered);
 
         if (currentSessionId === sessionId) {
-          if (filtered.length > 0) {
-            setCurrentSessionId(filtered[0].id);
-            setMessages(filtered[0].messages);
+          const activeSessions = filtered.filter((s) => !s.isArchived);
+          if (activeSessions.length > 0) {
+            setCurrentSessionId(activeSessions[0].id);
+            setMessages(activeSessions[0].messages);
           } else {
             const newId = Date.now().toString();
             const emptySession: ChatSession = {
@@ -125,11 +242,13 @@ export const useChatSessions = (initialAgentId: string = "shuki") => {
               messages: [],
               createdAt: new Date(),
               lastUpdated: new Date(),
+              isArchived: false,
             };
+            const nextList = [emptySession, ...filtered];
             setCurrentSessionId(newId);
             setMessages([]);
-            StorageService.saveSessions([emptySession]);
-            return [emptySession];
+            StorageService.saveSessions(nextList);
+            return nextList;
           }
         }
         return filtered;
@@ -174,54 +293,16 @@ export const useChatSessions = (initialAgentId: string = "shuki") => {
 
   const clearAllSessions = useCallback(
     (agentId?: string): void => {
-      const newId = Date.now().toString();
-      const freshSession: ChatSession = {
-        id: newId,
-        title: "שיחה חדשה",
-        agentId: agentId || initialAgentId,
-        messages: [],
-        createdAt: new Date(),
-        lastUpdated: new Date(),
-      };
-      setChatSessions([freshSession]);
-      setCurrentSessionId(newId);
-      setMessages([]);
-      StorageService.saveSessions([freshSession]);
+      archiveAllSessions(agentId);
     },
-    [initialAgentId]
+    [archiveAllSessions]
   );
 
   const clearAgentSessions = useCallback(
     (agentId: string): void => {
-      setChatSessions((prev) => {
-        const remaining = prev.filter((s) => s.agentId !== agentId);
-        if (remaining.length === 0) {
-          const newId = Date.now().toString();
-          const freshSession: ChatSession = {
-            id: newId,
-            title: "שיחה חדשה",
-            agentId,
-            messages: [],
-            createdAt: new Date(),
-            lastUpdated: new Date(),
-          };
-          StorageService.saveSessions([freshSession]);
-          setCurrentSessionId(newId);
-          setMessages([]);
-          return [freshSession];
-        }
-
-        const currentWasDeleted = !remaining.some((s) => s.id === currentSessionId);
-        if (currentWasDeleted) {
-          setCurrentSessionId(remaining[0].id);
-          setMessages(remaining[0].messages);
-        }
-
-        StorageService.saveSessions(remaining);
-        return remaining;
-      });
+      archiveAllSessions(agentId);
     },
-    [currentSessionId]
+    [archiveAllSessions]
   );
 
   return {
@@ -231,6 +312,10 @@ export const useChatSessions = (initialAgentId: string = "shuki") => {
     messages,
     createNewSession,
     switchSession,
+    renameSession,
+    archiveSession,
+    unarchiveSession,
+    archiveAllSessions,
     deleteSession,
     clearAllSessions,
     clearAgentSessions,

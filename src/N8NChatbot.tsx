@@ -95,6 +95,10 @@ const N8NChatbot: React.FC = () => {
     messages,
     createNewSession,
     switchSession,
+    renameSession,
+    archiveSession,
+    unarchiveSession,
+    archiveAllSessions,
     deleteSession,
     clearAllSessions,
     clearAgentSessions,
@@ -109,6 +113,10 @@ const N8NChatbot: React.FC = () => {
     const allowedIds = new Set(visibleAgents.map((a) => a.id));
     return chatSessions.filter((s) => allowedIds.has(s.agentId));
   }, [chatSessions, currentUser, visibleAgents]);
+
+  const activeSessionsCount = useMemo(() => {
+    return visibleSessions.filter((s) => !s.isArchived).length;
+  }, [visibleSessions]);
 
   // Chat hook
   const { sendMessage, isLoading } = useChat(
@@ -270,7 +278,7 @@ const N8NChatbot: React.FC = () => {
           onOpenAgents={() => setIsAgentsOpen(true)}
           onOpenUserManagement={() => setIsUserManagementOpen(true)}
           onOpenLogin={() => setIsLoginOpen(true)}
-          sessionsCount={visibleSessions.length}
+          sessionsCount={activeSessionsCount}
           theme={theme}
           onToggleTheme={toggleTheme}
         />
@@ -292,7 +300,7 @@ const N8NChatbot: React.FC = () => {
         />
       </div>
 
-      {/* History Drawer - Hidden by default */}
+      {/* History & Archive Drawer - Hidden by default */}
       <ChatSidebar
         isOpen={isHistoryOpen}
         onClose={() => setIsHistoryOpen(false)}
@@ -303,8 +311,10 @@ const N8NChatbot: React.FC = () => {
         onCreateNewSession={handleCreateNewSession}
         onSwitchSession={handleSwitchSession}
         onDeleteSession={deleteSession}
-        onClearAllHistory={() => clearAllSessions(activeAgent?.id)}
-        onClearAgentHistory={clearAgentSessions}
+        onRenameSession={renameSession}
+        onArchiveSession={archiveSession}
+        onUnarchiveSession={unarchiveSession}
+        onArchiveAllHistory={(agentId) => archiveAllSessions(agentId || activeAgent?.id)}
         onExportChat={handleExportChat}
         hasMessages={messages.length > 0}
       />

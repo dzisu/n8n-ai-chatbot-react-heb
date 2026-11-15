@@ -176,6 +176,7 @@ export class StorageService {
           (Array.isArray(session.messages) &&
             session.messages.find((m: any) => m?.agentId)?.agentId) ||
           "shuki",
+        isArchived: Boolean(session.isArchived),
         createdAt: new Date(session.createdAt),
         lastUpdated: new Date(session.lastUpdated),
         messages: (session.messages || []).map((msg: any) => ({
