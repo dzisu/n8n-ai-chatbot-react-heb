@@ -2,6 +2,35 @@
 @tailwind components;
 @tailwind utilities;
 
+/* n8n Design System Root & Semantic Variables */
+:root {
+  --n8n-bg-primary: #FAFAFA;
+  --n8n-bg-secondary: #F1F1F1;
+  --n8n-bg-tertiary: #EAEAEA;
+  --n8n-text-primary: #191919;
+  --n8n-text-secondary: rgba(25, 25, 25, 0.6);
+  --n8n-border-primary: #E0E0E0;
+  --n8n-border-strong: #BFBFBF;
+  --n8n-accent-pink: #FF91AC;
+  --n8n-dot-color: #D6D6D6;
+  --deboss-tl: #EAEAEA;
+  --deboss-br: #FFFFFF;
+}
+
+.dark {
+  --n8n-bg-primary: #191919;
+  --n8n-bg-secondary: #242424;
+  --n8n-bg-tertiary: #464646;
+  --n8n-text-primary: #FAFAFA;
+  --n8n-text-secondary: rgba(250, 250, 250, 0.7);
+  --n8n-border-primary: #353535;
+  --n8n-border-strong: #676767;
+  --n8n-accent-pink: #FF91AC;
+  --n8n-dot-color: #353535;
+  --deboss-tl: #121212;
+  --deboss-br: rgba(250, 250, 250, 0.08);
+}
+
 /* Custom reset & mobile viewport locking for iOS Safari */
 html,
 body {
@@ -15,9 +44,8 @@ body {
   width: 100%;
   overscroll-behavior: none;
   -webkit-overflow-scrolling: touch;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Oxygen",
-    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
-    sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-feature-settings: "liga" 1;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -30,10 +58,33 @@ body {
   position: relative;
 }
 
-/* Custom scrollbar styles */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+/* n8n Canvas Dot Grid Background */
+.n8n-dot-grid {
+  background-image: radial-gradient(var(--n8n-dot-color) 1.25px, transparent 1.25px);
+  background-size: 24px 24px;
+}
+
+/* n8n Tactile Deboss */
+.n8n-deboss-s {
+  box-shadow: inset 4px 4px 8px 0 var(--deboss-tl), inset -4px -4px 8px 0 var(--deboss-br);
+}
+
+.n8n-deboss-m {
+  box-shadow: inset 8px 8px 12px 0 var(--deboss-tl), inset -8px -8px 12px 0 var(--deboss-br);
+}
+
+/* n8n Capsule badge */
+.n8n-capsule {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 11px;
+  line-height: 1;
+  padding: 4px 10px;
 }
 
 /* Ensure all Lucide SVGs retain strictly square 1:1 aspect ratio across all browsers */
@@ -43,23 +94,35 @@ svg.lucide,
   flex-shrink: 0;
 }
 
+/* Custom scrollbar styled to match n8n brand */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
 ::-webkit-scrollbar-track {
   background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(148, 163, 184, 0.3);
+  background: rgba(140, 140, 140, 0.3);
   border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(148, 163, 184, 0.5);
+  background: rgba(140, 140, 140, 0.5);
 }
 
 .dark ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(250, 250, 250, 0.2);
 }
 
 .dark ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.35);
+  background: rgba(250, 250, 250, 0.35);
+}
+
+/* Selection highlight in brand pink */
+::selection {
+  background-color: #FF91AC;
+  color: #191919;
 }

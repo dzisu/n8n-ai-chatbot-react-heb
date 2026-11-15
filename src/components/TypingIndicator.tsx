@@ -8,12 +8,10 @@ interface TypingIndicatorProps {
 
 export const TypingIndicator: React.FC<TypingIndicatorProps> = ({ agent }) => {
   return (
-    <div className="flex w-full justify-end my-2">
+    <div className="flex w-full justify-end my-2.5">
       <div className="flex max-w-[80%] gap-2.5 sm:gap-3 flex-row-reverse items-center">
         <div
-          className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br ${
-            agent?.color || "from-emerald-600 to-teal-600"
-          } flex items-center justify-center shrink-0 aspect-square text-white shadow-md`}
+          className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#FF91AC] text-[#191919] flex items-center justify-center shrink-0 aspect-square shadow-sm border border-[#FFBCCA]"
           style={{
             width: "2.25rem",
             height: "2.25rem",
@@ -24,15 +22,15 @@ export const TypingIndicator: React.FC<TypingIndicatorProps> = ({ agent }) => {
         >
           <DynamicLucideIcon name={agent?.avatarIcon} size={18} />
         </div>
-        <div className="bg-white dark:bg-slate-800/90 rounded-2xl rounded-tl-sm px-4 py-3 border border-slate-200 dark:border-slate-700/60 shadow-sm">
+        <div className="bg-[#FFFFFF] dark:bg-[#242424] rounded-2xl rounded-tl-sm px-4 py-3 border border-[#E0E0E0] dark:border-[#353535] shadow-sm">
           <div className="flex space-x-2 space-x-reverse items-center">
-            <div className="w-2 h-2 bg-blue-500 dark:bg-blue-400 rounded-full animate-bounce"></div>
+            <div className="w-2 h-2 bg-[#FF91AC] rounded-full animate-bounce"></div>
             <div
-              className="w-2 h-2 bg-blue-500 dark:bg-blue-400 rounded-full animate-bounce"
+              className="w-2 h-2 bg-[#FF91AC] rounded-full animate-bounce"
               style={{ animationDelay: "0.15s" }}
             ></div>
             <div
-              className="w-2 h-2 bg-blue-500 dark:bg-blue-400 rounded-full animate-bounce"
+              className="w-2 h-2 bg-[#FF91AC] rounded-full animate-bounce"
               style={{ animationDelay: "0.3s" }}
             ></div>
           </div>

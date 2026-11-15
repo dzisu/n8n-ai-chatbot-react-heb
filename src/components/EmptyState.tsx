@@ -1,5 +1,5 @@
 import React from "react";
-import { Lock, LogIn, ShieldAlert } from "lucide-react";
+import { Lock, LogIn, ShieldAlert, Sparkles } from "lucide-react";
 import { Agent, User } from "../types/chat";
 import { DynamicLucideIcon } from "./DynamicLucideIcon";
 
@@ -19,24 +19,30 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
   if (!currentUser) {
     return (
       <div className="flex flex-col items-center justify-center h-full text-center px-4 py-8 max-w-md mx-auto my-auto animate-fade-in">
-        <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center shrink-0 aspect-square text-white shadow-xl mb-4">
-          <Lock size={38} />
+        {/* Capsule pill */}
+        <div className="mb-4 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FFE8EC] dark:bg-[#5A0026] text-[#87003C] dark:text-[#FFBCCA] font-mono text-[10px] uppercase tracking-wider font-semibold">
+          <Lock size={12} />
+          <span>AUTHENTICATION REQUIRED</span>
         </div>
 
-        <h3 className="text-xl sm:text-2xl font-bold text-slate-800 dark:text-white mb-2">
+        <div className="w-16 h-16 rounded-2xl bg-[#191919] text-[#FF91AC] dark:bg-[#242424] flex items-center justify-center shrink-0 aspect-square shadow-xl mb-4 border border-[#E0E0E0] dark:border-[#353535]">
+          <Lock size={28} />
+        </div>
+
+        <h3 className="text-xl sm:text-2xl font-bold text-[#191919] dark:text-[#FAFAFA] mb-2 font-sans">
           ברוכים הבאים למערכת הסוכנים
         </h3>
 
-        <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mb-6 leading-relaxed">
+        <p className="text-xs sm:text-sm text-[#676767] dark:text-[#A4A4A4] mb-6 leading-relaxed">
           המערכת מאובטחת. כדי לגשת לסוכנים ולהתחיל לשוחח, יש להתחבר עם שם משתמש וסיסמה.
         </p>
 
         {onOpenLogin && (
           <button
             onClick={onOpenLogin}
-            className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white py-2.5 px-6 rounded-xl font-medium text-sm flex items-center gap-2 shadow-lg hover:shadow-xl active:scale-95 transition-all"
+            className="bg-[#FF91AC] hover:bg-[#FFD0D9] active:bg-[#FFBCCA] text-[#191919] font-bold py-2.5 px-6 rounded-2xl text-sm flex items-center gap-2 shadow-n8n-pink hover:shadow-n8n-pink-lg active:scale-95 transition-all cursor-pointer"
           >
-            <LogIn size={18} />
+            <LogIn size={16} />
             <span>התחברות למערכת</span>
           </button>
         )}
@@ -48,18 +54,18 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
   if (!activeAgent) {
     return (
       <div className="flex flex-col items-center justify-center h-full text-center px-4 py-8 max-w-md mx-auto my-auto">
-        <div className="w-18 h-18 rounded-3xl bg-amber-500/15 border border-amber-500/30 text-amber-500 flex items-center justify-center shrink-0 aspect-square shadow-md mb-4 p-4">
-          <ShieldAlert size={36} />
+        <div className="w-16 h-16 rounded-2xl bg-[#FFE8EC] dark:bg-[#5A0026] border border-[#FF91AC]/40 text-[#87003C] dark:text-[#FFBCCA] flex items-center justify-center shrink-0 aspect-square shadow-md mb-4 p-4">
+          <ShieldAlert size={32} />
         </div>
 
-        <h3 className="text-lg sm:text-xl font-bold text-slate-800 dark:text-white mb-1.5">
+        <h3 className="text-lg sm:text-xl font-bold text-[#191919] dark:text-[#FAFAFA] mb-1.5 font-sans">
           אין סוכנים מורשים
         </h3>
 
-        <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mb-2 leading-relaxed">
+        <p className="text-xs sm:text-sm text-[#676767] dark:text-[#A4A4A4] mb-2 leading-relaxed">
           למשתמש זה ({currentUser.username}) לא הוגדרו עדיין סוכנים מורשים.
         </p>
-        <p className="text-xs text-slate-400 dark:text-slate-500">
+        <p className="text-xs text-[#868686] dark:text-[#676767]">
           פנה למנהל המערכת (Admin) כדי שיקצה עבורך סוכנים.
         </p>
       </div>
@@ -69,10 +75,14 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
   // Normal Empty State for authorized agent
   return (
     <div className="flex flex-col items-center justify-center h-full text-center px-4 py-8 max-w-lg mx-auto my-auto">
+      {/* n8n Capsule Device for Agent category */}
+      <div className="mb-4 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FFE8EC] dark:bg-[#5A0026] border border-[#FF91AC]/30 text-[#87003C] dark:text-[#FFBCCA] font-mono text-[10px] uppercase tracking-wider font-semibold">
+        <Sparkles size={11} />
+        <span>N8N WORKFLOW AGENT • ACTIVE</span>
+      </div>
+
       <div
-        className={`w-20 h-20 sm:w-24 sm:h-24 rounded-3xl bg-gradient-to-br ${
-          activeAgent?.color || "from-blue-600 to-indigo-600"
-        } flex items-center justify-center shrink-0 aspect-square text-white shadow-xl mb-4`}
+        className="w-20 h-20 sm:w-22 sm:h-22 rounded-3xl bg-[#FF91AC] text-[#191919] flex items-center justify-center shrink-0 aspect-square shadow-n8n-pink mb-4 border border-[#FFBCCA]"
         style={{
           width: "5rem",
           height: "5rem",
@@ -81,26 +91,29 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
           aspectRatio: "1 / 1",
         }}
       >
-        <DynamicLucideIcon name={activeAgent?.avatarIcon} size={42} />
+        <DynamicLucideIcon name={activeAgent?.avatarIcon} size={40} />
       </div>
 
-      <h3 className="text-xl sm:text-2xl font-bold text-slate-800 dark:text-white mb-1">
-        היי! אני {activeAgent?.name || "העוזר שלך"}
+      <h3 className="text-2xl sm:text-3xl font-bold text-[#191919] dark:text-[#FAFAFA] mb-1 font-sans">
+        שלום, אני {activeAgent?.name || "הסוכן שלך"}
       </h3>
 
-      <p className="text-sm text-blue-600 dark:text-blue-300 font-medium mb-2">
-        {activeAgent?.role || "סוכן n8n"}
-      </p>
+      <div className="mb-3">
+        <span className="font-mono text-xs uppercase px-2.5 py-0.5 rounded-full bg-[#F1F1F1] dark:bg-[#242424] text-[#676767] dark:text-[#A4A4A4] border border-[#E0E0E0] dark:border-[#353535]">
+          {activeAgent?.role || "סוכן n8n"}
+        </span>
+      </div>
 
       {activeAgent?.description && (
-        <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mb-5 leading-relaxed max-w-sm">
+        <p className="text-xs sm:text-sm text-[#676767] dark:text-[#A4A4A4] mb-6 leading-relaxed max-w-sm">
           {activeAgent.description}
         </p>
       )}
 
-      <p className="text-xs text-slate-400 dark:text-slate-500 font-medium">
-        הקלד הודעה למטה כדי להתחיל בשיחה
-      </p>
+      <div className="flex items-center gap-2 text-xs text-[#868686] dark:text-[#676767] font-mono">
+        <span className="w-1.5 h-1.5 rounded-full bg-[#FF91AC]" />
+        <span>הקלד הודעה או גרור קובץ למטה כדי להתחיל</span>
+      </div>
     </div>
   );
 };

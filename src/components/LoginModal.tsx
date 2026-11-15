@@ -120,16 +120,16 @@ export const LoginModal: React.FC<LoginModalProps> = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
+        className="fixed inset-0 bg-black/70 backdrop-blur-sm transition-opacity"
         onClick={onClose}
       />
 
       {/* Modal Card */}
-      <div className="relative w-full max-w-sm bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl p-5 sm:p-6 z-10 text-right">
+      <div className="relative w-full max-w-sm bg-[#FFFFFF] dark:bg-[#191919] border border-[#E0E0E0] dark:border-[#353535] rounded-3xl shadow-2xl p-5 sm:p-6 z-10 text-right">
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-4 left-4 p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+          className="absolute top-4 left-4 p-1.5 rounded-xl text-[#676767] hover:text-[#191919] dark:hover:text-[#FAFAFA] hover:bg-[#F1F1F1] dark:hover:bg-[#242424] transition-colors cursor-pointer"
           title="סגור"
         >
           <X size={18} />
@@ -137,19 +137,19 @@ export const LoginModal: React.FC<LoginModalProps> = ({
 
         {/* Header */}
         <div className="text-center mb-5">
-          <div className="w-12 h-12 mx-auto rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white shadow-lg mb-3">
+          <div className="w-12 h-12 mx-auto rounded-2xl bg-[#FF91AC] text-[#191919] flex items-center justify-center shadow-n8n-pink mb-3 font-bold border border-[#FFBCCA]">
             <Lock size={22} />
           </div>
-          <h2 className="text-lg font-bold text-slate-800 dark:text-white">
+          <h2 className="text-lg font-bold text-[#191919] dark:text-[#FAFAFA] font-sans">
             {currentUser
               ? "פרטי משתמש מחובר"
               : isRegisterMode
               ? "יצירת חשבון מאובטח"
               : "התחברות למערכת"}
           </h2>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+          <p className="text-xs text-[#676767] dark:text-[#A4A4A4] mt-1 font-sans">
             {currentUser
-              ? "אתה מחובר כעת באמצעות Firebase Auth"
+              ? "מחובר באמצעות Firebase Authentication"
               : isRegisterMode
               ? "הרשם עם כתובת האימייל שלך לגישה מאובטחת"
               : "התחבר באמצעות אימייל וסיסמה"}
@@ -159,8 +159,8 @@ export const LoginModal: React.FC<LoginModalProps> = ({
         {/* Current User Logged In State */}
         {currentUser ? (
           <div className="space-y-4">
-            <div className="p-3.5 bg-slate-50 dark:bg-slate-800/80 rounded-xl border border-slate-200 dark:border-slate-700/60 flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-300 flex items-center justify-center font-bold">
+            <div className="p-3.5 bg-[#F1F1F1] dark:bg-[#242424] rounded-2xl border border-[#E0E0E0] dark:border-[#353535] flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-[#FFE8EC] dark:bg-[#5A0026] text-[#87003C] dark:text-[#FFBCCA] flex items-center justify-center font-bold">
                 {currentUser.role === "admin" ? (
                   <Shield size={20} />
                 ) : (
@@ -169,24 +169,24 @@ export const LoginModal: React.FC<LoginModalProps> = ({
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
-                  <span className="font-bold text-slate-800 dark:text-white text-sm truncate">
+                  <span className="font-bold text-[#191919] dark:text-[#FAFAFA] text-sm truncate">
                     {currentUser.username}
                   </span>
                   <span
-                    className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${
+                    className={`n8n-capsule text-[9px] ${
                       currentUser.role === "admin"
-                        ? "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300 border border-amber-500/30"
-                        : "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300 border border-blue-500/30"
+                        ? "bg-[#FF91AC] text-[#191919] font-bold"
+                        : "bg-[#EAEAEA] text-[#191919] dark:bg-[#353535] dark:text-[#FAFAFA]"
                     }`}
                   >
                     {currentUser.role === "admin"
-                      ? "מנהל מערכת (Admin)"
-                      : "משתמש"}
+                      ? "ADMIN"
+                      : "USER"}
                   </span>
                 </div>
                 {currentUser.email && (
                   <p
-                    className="text-xs text-slate-500 dark:text-slate-400 truncate mt-0.5 font-mono"
+                    className="text-xs text-[#676767] dark:text-[#A4A4A4] truncate mt-0.5 font-mono"
                     dir="ltr"
                   >
                     {currentUser.email}
@@ -199,7 +199,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
               <button
                 type="button"
                 onClick={handleLogoutClick}
-                className="flex-1 bg-red-50 hover:bg-red-100 dark:bg-red-950/40 dark:hover:bg-red-900/60 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800/60 py-2.5 px-3 rounded-xl font-medium text-xs sm:text-sm flex items-center justify-center gap-1.5 transition-all shadow-sm active:scale-98"
+                className="flex-1 bg-[#FFE8EC] hover:bg-[#FFD0D9] dark:bg-[#44001B] dark:hover:bg-[#5A0026] text-[#87003C] dark:text-[#FFBCCA] border border-[#FF91AC]/30 py-2.5 px-3 rounded-2xl font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition-all shadow-sm active:scale-95 cursor-pointer"
               >
                 <LogOut size={16} />
                 <span>התנתק מהמערכת</span>
@@ -207,7 +207,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs sm:text-sm font-medium transition-all"
+                className="px-4 py-2.5 rounded-2xl border border-[#E0E0E0] dark:border-[#353535] text-[#191919] dark:text-[#FAFAFA] hover:bg-[#F1F1F1] dark:hover:bg-[#242424] text-xs sm:text-sm font-medium transition-all cursor-pointer"
               >
                 סגור
               </button>
@@ -217,7 +217,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
           /* Login / Register Form */
           <form onSubmit={handleSubmit} className="space-y-3.5">
             {error && (
-              <div className="p-2.5 bg-red-50 dark:bg-red-950/50 border border-red-200 dark:border-red-800/60 rounded-xl flex items-center gap-2 text-red-600 dark:text-red-400 text-xs">
+              <div className="p-2.5 bg-[#FFE8EC] dark:bg-[#5A0026] border border-[#FF91AC]/40 rounded-xl flex items-center gap-2 text-[#87003C] dark:text-[#FFBCCA] text-xs font-sans">
                 <AlertCircle size={15} className="flex-shrink-0" />
                 <span>{error}</span>
               </div>
@@ -225,7 +225,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
 
             {isRegisterMode && (
               <div>
-                <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+                <label className="block text-xs font-medium text-[#191919] dark:text-[#FAFAFA] mb-1 font-sans">
                   שם מלא / כינוי
                 </label>
                 <div className="relative">
@@ -234,18 +234,18 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                     value={displayName}
                     onChange={(e) => setDisplayName(e.target.value)}
                     placeholder="למשל: תומר זיסו"
-                    className="w-full bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white text-xs sm:text-sm p-2.5 pr-9 rounded-xl border border-slate-300 dark:border-slate-700 focus:border-blue-500 focus:outline-none"
+                    className="w-full bg-[#F1F1F1] dark:bg-[#242424] text-[#191919] dark:text-[#FAFAFA] text-xs sm:text-sm p-2.5 pr-9 rounded-xl border border-[#E0E0E0] dark:border-[#353535] focus:border-[#FF91AC] focus:outline-none focus:ring-1 focus:ring-[#FF91AC]"
                   />
                   <UserIcon
                     size={16}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#868686] pointer-events-none"
                   />
                 </div>
               </div>
             )}
 
             <div>
-              <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+              <label className="block text-xs font-medium text-[#191919] dark:text-[#FAFAFA] mb-1 font-sans">
                 כתובת אימייל (Email)
               </label>
               <div className="relative">
@@ -255,19 +255,19 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="name@example.com"
-                  className="w-full bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white text-xs sm:text-sm p-2.5 pr-9 rounded-xl border border-slate-300 dark:border-slate-700 focus:border-blue-500 focus:outline-none font-mono"
+                  className="w-full bg-[#F1F1F1] dark:bg-[#242424] text-[#191919] dark:text-[#FAFAFA] text-xs sm:text-sm p-2.5 pr-9 rounded-xl border border-[#E0E0E0] dark:border-[#353535] focus:border-[#FF91AC] focus:outline-none focus:ring-1 focus:ring-[#FF91AC] font-mono"
                   dir="ltr"
                   autoFocus
                 />
                 <Mail
                   size={16}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#868686] pointer-events-none"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+              <label className="block text-xs font-medium text-[#191919] dark:text-[#FAFAFA] mb-1 font-sans">
                 סיסמה
               </label>
               <div className="relative">
@@ -277,24 +277,25 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="לפחות 6 תווים..."
-                  className="w-full bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white text-xs sm:text-sm p-2.5 pr-9 rounded-xl border border-slate-300 dark:border-slate-700 focus:border-blue-500 focus:outline-none font-mono"
+                  className="w-full bg-[#F1F1F1] dark:bg-[#242424] text-[#191919] dark:text-[#FAFAFA] text-xs sm:text-sm p-2.5 pr-9 rounded-xl border border-[#E0E0E0] dark:border-[#353535] focus:border-[#FF91AC] focus:outline-none focus:ring-1 focus:ring-[#FF91AC] font-mono"
                   dir="ltr"
                 />
                 <Lock
                   size={16}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#868686] pointer-events-none"
                 />
               </div>
             </div>
 
+            {/* Official n8n Pink Submit Button with Black Text */}
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white py-2.5 px-4 rounded-xl font-medium text-xs sm:text-sm flex items-center justify-center gap-1.5 transition-all shadow-md active:scale-98 mt-2 disabled:opacity-50"
+              className="w-full bg-[#FF91AC] hover:bg-[#FFD0D9] active:bg-[#FFBCCA] text-[#191919] py-3 px-4 rounded-2xl font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition-all shadow-n8n-pink active:scale-95 mt-2 disabled:opacity-50 cursor-pointer"
             >
               {isSubmitting ? (
                 <>
-                  <Loader2 size={16} className="animate-spin" />
+                  <Loader2 size={16} className="animate-spin text-[#191919]" />
                   <span>מעבד בקשה...</span>
                 </>
               ) : isRegisterMode ? (
@@ -310,14 +311,14 @@ export const LoginModal: React.FC<LoginModalProps> = ({
               )}
             </button>
 
-            <div className="pt-3 text-center border-t border-slate-200 dark:border-slate-800">
+            <div className="pt-3 text-center border-t border-[#E0E0E0] dark:border-[#353535]">
               <button
                 type="button"
                 onClick={() => {
                   setError(null);
                   setIsRegisterMode(!isRegisterMode);
                 }}
-                className="text-xs text-blue-600 dark:text-blue-400 hover:underline font-medium"
+                className="text-xs text-[#87003C] dark:text-[#FF91AC] hover:underline font-bold cursor-pointer"
               >
                 {isRegisterMode
                   ? "כבר יש לך חשבון? לחץ כאן להתחברות"

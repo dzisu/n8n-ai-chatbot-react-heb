@@ -19,7 +19,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ message, agent }) 
   };
 
   return (
-    <div className={`flex w-full ${isUser ? "justify-start" : "justify-end"} my-2`}>
+    <div className={`flex w-full ${isUser ? "justify-start" : "justify-end"} my-2.5`}>
       <div
         className={`flex max-w-[88%] sm:max-w-[78%] md:max-w-[70%] gap-2.5 sm:gap-3 ${
           isUser ? "flex-row" : "flex-row-reverse"
@@ -27,12 +27,10 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ message, agent }) 
       >
         {/* Avatar */}
         <div
-          className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center shrink-0 aspect-square text-white shadow-md ${
+          className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center shrink-0 aspect-square shadow-sm ${
             isUser
-              ? "bg-gradient-to-br from-blue-600 to-indigo-600"
-              : `bg-gradient-to-br ${
-                  agent?.color || "from-emerald-600 to-teal-600"
-                }`
+              ? "bg-[#191919] text-[#FF91AC] dark:bg-[#FAFAFA] dark:text-[#191919] border border-[#E0E0E0] dark:border-[#353535]"
+              : "bg-[#FF91AC] text-[#191919] border border-[#FFBCCA]"
           }`}
           style={{
             width: "2.25rem",
@@ -61,18 +59,20 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ message, agent }) 
 
         {/* Bubble content */}
         <div className="flex flex-col min-w-0 max-w-full">
-          {/* Header row in bubble */}
+          {/* Header row in bubble: capsule label */}
           {!isUser && (
-            <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium mb-1 px-1 text-right">
-              {message.agentName || agent?.name || "סוכן"}
-            </span>
+            <div className="mb-1 px-1 text-right">
+              <span className="n8n-capsule bg-[#F1F1F1] dark:bg-[#242424] text-[#676767] dark:text-[#A4A4A4] border border-[#E0E0E0] dark:border-[#353535]">
+                {message.agentName || agent?.name || "AGENT"}
+              </span>
+            </div>
           )}
 
           <div
             className={`rounded-2xl px-4 py-3 shadow-sm text-sm sm:text-base leading-relaxed text-right space-y-2.5 ${
               isUser
-                ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-tr-sm"
-                : "bg-white dark:bg-slate-800/90 text-slate-800 dark:text-slate-100 rounded-tl-sm border border-slate-200 dark:border-slate-700/60"
+                ? "bg-[#FF91AC] text-[#191919] rounded-tr-sm font-medium shadow-n8n-pink"
+                : "bg-[#FFFFFF] dark:bg-[#242424] text-[#191919] dark:text-[#FAFAFA] rounded-tl-sm border border-[#E0E0E0] dark:border-[#353535]"
             }`}
           >
             {/* Attachment Display */}
@@ -80,8 +80,8 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ message, agent }) 
               <div
                 className={`rounded-xl p-2.5 border transition-all ${
                   isUser
-                    ? "bg-white/15 border-white/25 text-white"
-                    : "bg-slate-50 dark:bg-slate-900/60 border-slate-200 dark:border-slate-700"
+                    ? "bg-black/10 border-black/15 text-[#191919]"
+                    : "bg-[#F1F1F1] dark:bg-[#191919] border-[#E0E0E0] dark:border-[#353535]"
                 }`}
               >
                 {attachment.isImage && attachment.dataUrl ? (
@@ -91,7 +91,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ message, agent }) 
                       alt={attachment.name}
                       className="max-h-56 w-auto max-w-full rounded-lg object-contain shadow-sm bg-black/5"
                     />
-                    <div className="flex items-center justify-between text-[11px] opacity-80 pt-1">
+                    <div className="flex items-center justify-between text-[11px] opacity-80 pt-1 font-mono">
                       <span className="truncate max-w-[180px]">{attachment.name}</span>
                       <span>{formatFileSize(attachment.size)}</span>
                     </div>
@@ -102,8 +102,8 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ message, agent }) 
                       <div
                         className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 ${
                           isUser
-                            ? "bg-white/20 text-white"
-                            : "bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-300"
+                            ? "bg-black/15 text-[#191919]"
+                            : "bg-[#FFE8EC] dark:bg-[#5A0026] text-[#87003C] dark:text-[#FFBCCA]"
                         }`}
                       >
                         <FileText size={18} />
@@ -112,7 +112,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ message, agent }) 
                         <p className="text-xs font-semibold truncate max-w-[160px] sm:max-w-[200px]">
                           {attachment.name}
                         </p>
-                        <p className="text-[10px] opacity-75">
+                        <p className="text-[10px] font-mono opacity-75">
                           {formatFileSize(attachment.size)}
                         </p>
                       </div>
@@ -126,8 +126,8 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ message, agent }) 
                         rel="noreferrer"
                         className={`p-1.5 rounded-lg transition-colors flex-shrink-0 ${
                           isUser
-                            ? "hover:bg-white/20 text-white"
-                            : "hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-500 hover:text-slate-800 dark:hover:text-white"
+                            ? "hover:bg-black/15 text-[#191919]"
+                            : "hover:bg-[#EAEAEA] dark:hover:bg-[#353535] text-[#676767] dark:text-[#A4A4A4]"
                         }`}
                         title="הורד קובץ"
                       >
@@ -140,12 +140,12 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ message, agent }) 
             )}
 
             {message.content && (
-              <p className="whitespace-pre-wrap break-words">{message.content}</p>
+              <p className="whitespace-pre-wrap break-words leading-relaxed font-sans">{message.content}</p>
             )}
 
             <p
-              className={`text-[10px] mt-1 opacity-60 text-left ${
-                isUser ? "text-white" : "text-slate-500 dark:text-slate-400"
+              className={`text-[10px] mt-1 font-mono text-left ${
+                isUser ? "text-[#191919]/60" : "text-[#868686] dark:text-[#676767]"
               }`}
               dir="ltr"
             >

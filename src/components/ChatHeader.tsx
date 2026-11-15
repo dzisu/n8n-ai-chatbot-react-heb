@@ -9,6 +9,8 @@ import {
   UserCheck,
 } from "lucide-react";
 import { Agent, User } from "../types/chat";
+import { DynamicLucideIcon } from "./DynamicLucideIcon";
+import { N8NLogo } from "./N8NLogo";
 
 interface ChatHeaderProps {
   activeAgent?: Agent;
@@ -23,7 +25,7 @@ interface ChatHeaderProps {
 }
 
 export const ChatHeader: React.FC<ChatHeaderProps> = ({
-  activeAgent: _activeAgent,
+  activeAgent,
   currentUser,
   onOpenHistory,
   onOpenAgents,
@@ -37,7 +39,8 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
   const isLoggedIn = !!currentUser;
 
   return (
-    <header className="bg-white/90 dark:bg-slate-900/85 backdrop-blur-md border-b border-slate-200 dark:border-slate-700/60 px-3 sm:px-6 py-2.5 sm:py-3 flex-shrink-0 z-30 transition-colors duration-200 sticky top-0"
+    <header
+      className="bg-[#FAFAFA]/90 dark:bg-[#191919]/90 backdrop-blur-md border-b border-[#E0E0E0] dark:border-[#353535] px-3 sm:px-6 py-2.5 sm:py-3 flex-shrink-0 z-30 transition-colors duration-200 sticky top-0"
       style={{
         paddingTop: "max(0.65rem, env(safe-area-inset-top, 0.65rem))",
       }}
@@ -51,15 +54,18 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
             disabled={!isLoggedIn}
             className={`flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-xl border text-xs sm:text-sm font-medium transition-all shadow-sm ${
               isLoggedIn
-                ? "bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white border-slate-200 dark:border-slate-700/60 active:scale-95 cursor-pointer"
-                : "bg-slate-100/40 dark:bg-slate-800/30 text-slate-400 dark:text-slate-600 border-slate-200/40 dark:border-slate-800/40 cursor-not-allowed opacity-50"
+                ? "bg-[#F1F1F1] dark:bg-[#242424] hover:bg-[#F8F8F8] dark:hover:bg-[#353535] text-[#191919] dark:text-[#FAFAFA] border-[#E0E0E0] dark:border-[#353535] active:scale-95 cursor-pointer"
+                : "bg-[#F1F1F1]/50 dark:bg-[#242424]/50 text-[#868686] dark:text-[#676767] border-[#E0E0E0]/50 dark:border-[#353535]/50 cursor-not-allowed opacity-50"
             }`}
             title={isLoggedIn ? "פתח היסטוריית שיחות" : "יש להתחבר למערכת לצפייה בהיסטוריה"}
           >
-            <MessageSquare size={16} className={isLoggedIn ? "text-blue-500 dark:text-blue-400" : "text-slate-400"} />
-            <span className="hidden xs:inline">שיחות</span>
+            <MessageSquare
+              size={16}
+              className={isLoggedIn ? "text-[#87003C] dark:text-[#FF91AC]" : "text-[#868686]"}
+            />
+            <span className="hidden xs:inline font-sans">שיחות</span>
             {isLoggedIn && sessionsCount > 0 && (
-              <span className="bg-blue-100 dark:bg-blue-600/30 text-blue-600 dark:text-blue-300 text-[10px] px-1.5 py-0.2 rounded-full font-mono">
+              <span className="bg-[#FF91AC] text-[#191919] text-[10px] px-1.5 py-0.5 rounded-full font-mono font-bold leading-none">
                 {sessionsCount}
               </span>
             )}
@@ -68,13 +74,13 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
           {/* Theme Toggle Button */}
           <button
             onClick={onToggleTheme}
-            className="p-1.5 sm:p-2 rounded-xl bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700/60 transition-all shadow-sm active:scale-95 cursor-pointer"
+            className="p-1.5 sm:p-2 rounded-xl bg-[#F1F1F1] dark:bg-[#242424] hover:bg-[#F8F8F8] dark:hover:bg-[#353535] text-[#191919] dark:text-[#FAFAFA] border border-[#E0E0E0] dark:border-[#353535] transition-all shadow-sm active:scale-95 cursor-pointer"
             title={theme === "dark" ? "עבור לתבנית בהירה" : "עבור לתבנית כהה"}
           >
             {theme === "dark" ? (
-              <Sun size={17} className="text-amber-400 hover:rotate-45 transition-transform" />
+              <Sun size={17} className="text-[#FF91AC] hover:rotate-45 transition-transform" />
             ) : (
-              <Moon size={17} className="text-indigo-600 hover:-rotate-12 transition-transform" />
+              <Moon size={17} className="text-[#87003C] hover:-rotate-12 transition-transform" />
             )}
           </button>
 
@@ -84,8 +90,8 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
             disabled={!isAdmin}
             className={`p-1.5 sm:p-2 rounded-xl border transition-all shadow-sm ${
               isAdmin
-                ? "bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 hover:text-blue-600 dark:hover:text-blue-400 border-slate-200 dark:border-slate-700/60 active:scale-95 cursor-pointer"
-                : "bg-slate-100/40 dark:bg-slate-800/30 text-slate-400/40 dark:text-slate-600/40 border-slate-200/40 dark:border-slate-800/40 cursor-not-allowed opacity-30"
+                ? "bg-[#F1F1F1] dark:bg-[#242424] hover:bg-[#F8F8F8] dark:hover:bg-[#353535] text-[#191919] dark:text-[#FAFAFA] hover:text-[#87003C] dark:hover:text-[#FF91AC] border-[#E0E0E0] dark:border-[#353535] active:scale-95 cursor-pointer"
+                : "bg-[#F1F1F1]/40 dark:bg-[#242424]/40 text-[#A4A4A4] dark:text-[#676767] border-[#E0E0E0]/40 dark:border-[#353535]/40 cursor-not-allowed opacity-30"
             }`}
             title={
               isAdmin
@@ -99,7 +105,7 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
           {/* Login / User Status Button - Icon only */}
           <button
             onClick={onOpenLogin}
-            className="p-1.5 sm:p-2 rounded-xl bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700/60 transition-all shadow-sm active:scale-95 cursor-pointer"
+            className="p-1.5 sm:p-2 rounded-xl bg-[#F1F1F1] dark:bg-[#242424] hover:bg-[#F8F8F8] dark:hover:bg-[#353535] text-[#191919] dark:text-[#FAFAFA] border border-[#E0E0E0] dark:border-[#353535] transition-all shadow-sm active:scale-95 cursor-pointer"
             title={
               isLoggedIn
                 ? `מחובר: ${currentUser.username} (${isAdmin ? "מנהל מערכת" : "משתמש"}) - לחץ לפרטים`
@@ -107,27 +113,47 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
             }
           >
             {isLoggedIn ? (
-              <UserCheck size={17} className="text-emerald-500 dark:text-emerald-400" />
+              <UserCheck size={17} className="text-[#FF91AC]" />
             ) : (
-              <LogIn size={17} className="text-blue-600 dark:text-blue-400" />
+              <LogIn size={17} className="text-[#87003C] dark:text-[#FF91AC]" />
             )}
           </button>
+        </div>
+
+        {/* Center: Official n8n Symbol for brand recognition */}
+        <div className="hidden md:flex items-center justify-center">
+          <N8NLogo size={24} showText={false} />
         </div>
 
         {/* Left side in RTL: Single Agents Switcher Button */}
         <div className="flex items-center gap-1.5 sm:gap-2">
           <button
             onClick={isLoggedIn ? onOpenAgents : onOpenLogin}
-            disabled={!isLoggedIn}
-            className={`flex items-center gap-1.5 px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-medium transition-all shadow-md ${
-              isLoggedIn
-                ? "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white active:scale-95 cursor-pointer"
-                : "bg-slate-200 dark:bg-slate-800 text-slate-400 dark:text-slate-600 cursor-not-allowed opacity-50"
-            }`}
-            title={isLoggedIn ? "פתח ניהול והחלפת סוכנים" : "יש להתחבר כדי לבחור סוכנים"}
+            className="flex items-center gap-2 px-3 py-1.5 sm:py-2 rounded-xl bg-[#F1F1F1] dark:bg-[#242424] hover:bg-[#F8F8F8] dark:hover:bg-[#353535] border border-[#E0E0E0] dark:border-[#353535] text-[#191919] dark:text-[#FAFAFA] shadow-sm transition-all active:scale-95 cursor-pointer"
+            title="בחר סוכן או נהל סוכנים"
           >
-            <Users size={16} />
-            <span>סוכנים</span>
+            {activeAgent ? (
+              <>
+                <div
+                  className="w-6 h-6 rounded-lg bg-[#FF91AC] text-[#191919] flex items-center justify-center shrink-0 font-bold text-xs"
+                >
+                  <DynamicLucideIcon name={activeAgent.avatarIcon} size={14} />
+                </div>
+                <div className="text-right leading-tight min-w-0">
+                  <div className="font-bold text-xs sm:text-sm truncate max-w-[120px] sm:max-w-[180px]">
+                    {activeAgent.name}
+                  </div>
+                  <div className="text-[10px] text-[#676767] dark:text-[#A4A4A4] truncate max-w-[120px] sm:max-w-[180px]">
+                    {activeAgent.role}
+                  </div>
+                </div>
+              </>
+            ) : (
+              <>
+                <Users size={16} className="text-[#FF91AC]" />
+                <span className="text-xs sm:text-sm font-medium">סוכנים</span>
+              </>
+            )}
           </button>
         </div>
       </div>

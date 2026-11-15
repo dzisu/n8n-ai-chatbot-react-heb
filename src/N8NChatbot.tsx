@@ -298,12 +298,12 @@ const N8NChatbot: React.FC = () => {
   return (
     <div
       dir="rtl"
-      className="flex h-[100dvh] h-full w-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 overflow-hidden relative font-sans transition-colors duration-200"
+      className="flex h-[100dvh] h-full w-full bg-[#FAFAFA] dark:bg-[#191919] text-[#191919] dark:text-[#FAFAFA] overflow-hidden relative font-sans transition-colors duration-200"
     >
-      {/* Background ambient lighting */}
-      <div className="absolute inset-0 bg-gradient-to-br from-slate-100 via-blue-50/20 to-indigo-50/20 dark:from-slate-950 dark:via-slate-900 dark:to-indigo-950 -z-10" />
-      <div className="absolute top-0 right-1/4 w-96 h-96 bg-blue-500/10 dark:bg-blue-600/10 rounded-full blur-3xl pointer-events-none -z-10" />
-      <div className="absolute bottom-0 left-1/4 w-96 h-96 bg-indigo-500/10 dark:bg-indigo-600/10 rounded-full blur-3xl pointer-events-none -z-10" />
+      {/* n8n Canvas dot grid and subtle ambient pink aura */}
+      <div className="absolute inset-0 n8n-dot-grid -z-10" />
+      <div className="absolute top-0 right-1/4 w-96 h-96 bg-[#FF91AC]/5 dark:bg-[#FF91AC]/[0.03] rounded-full blur-3xl pointer-events-none -z-10" />
+      <div className="absolute bottom-0 left-1/4 w-96 h-96 bg-[#87003C]/5 dark:bg-[#87003C]/[0.03] rounded-full blur-3xl pointer-events-none -z-10" />
 
       {/* Main Area: If not logged in, show Opening Screen with solid n8n logo only */}
       {!currentUser ? (
