@@ -7,7 +7,6 @@ import {
   Moon,
 } from "lucide-react";
 import { Agent } from "../types/chat";
-import { DynamicLucideIcon } from "./DynamicLucideIcon";
 
 interface ChatHeaderProps {
   activeAgent?: Agent;
@@ -65,31 +64,6 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
               <Moon size={17} className="text-indigo-600 hover:-rotate-12 transition-transform" />
             )}
           </button>
-        </div>
-
-        {/* Center: Current Active Agent Display (Static Badge, non-clickable) */}
-        <div
-          className="flex items-center gap-2 sm:gap-2.5 px-3 py-1 sm:py-1.5 rounded-2xl bg-slate-100/90 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/50 max-w-[50%] sm:max-w-none text-right shadow-sm select-none"
-        >
-          <div
-            className={`w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-gradient-to-br ${
-              activeAgent?.color || "from-blue-600 to-indigo-600"
-            } flex items-center justify-center text-white shadow-sm flex-shrink-0`}
-          >
-            <DynamicLucideIcon name={activeAgent?.avatarIcon} size={16} />
-          </div>
-
-          <div className="min-w-0 text-right">
-            <div className="flex items-center gap-1.5">
-              <span className="text-xs sm:text-sm font-bold text-slate-800 dark:text-white truncate">
-                {activeAgent?.name || "סוכן ראשי"}
-              </span>
-              <div className="w-2 h-2 rounded-full bg-emerald-500 dark:bg-emerald-400 animate-pulse flex-shrink-0" title="מחובר" />
-            </div>
-            <p className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 truncate">
-              {activeAgent?.role || "סוכן n8n"}
-            </p>
-          </div>
         </div>
 
         {/* Left side in RTL: Single Agents Switcher Button */}
