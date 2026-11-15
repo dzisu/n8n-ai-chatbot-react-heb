@@ -108,7 +108,11 @@ export class StorageService {
       return JSON.parse(stored).map((session: any) => ({
         id: session.id,
         title: session.title,
-        agentId: session.agentId || "shuki",
+        agentId:
+          session.agentId ||
+          (Array.isArray(session.messages) &&
+            session.messages.find((m: any) => m?.agentId)?.agentId) ||
+          "shuki",
         createdAt: new Date(session.createdAt),
         lastUpdated: new Date(session.lastUpdated),
         messages: (session.messages || []).map((msg: any) => ({

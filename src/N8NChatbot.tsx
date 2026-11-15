@@ -65,9 +65,9 @@ const N8NChatbot: React.FC = () => {
     switchSession,
     deleteSession,
     clearAllSessions,
+    clearAgentSessions,
     updateMessages,
     saveCurrentSession,
-    updateSessionAgent,
   } = useChatSessions(activeAgent?.id || "shuki");
 
   // Chat hook
@@ -106,9 +106,20 @@ const N8NChatbot: React.FC = () => {
 
   const handleSelectAgent = (agentId: string) => {
     setActiveAgentId(agentId);
-    if (currentSessionId) {
-      updateSessionAgent(currentSessionId, agentId);
+    setIsAgentsOpen(false);
+    setIsHistoryOpen(false);
+
+    // If current session is already an empty conversation for this agent, keep it
+    if (
+      currentSession &&
+      currentSession.agentId === agentId &&
+      messages.length === 0
+    ) {
+      return;
     }
+
+    // Always create a fresh new session for the selected agent by default
+    createNewSession(agentId);
   };
 
   const handleSaveAgent = (agent: Agent) => {
@@ -138,8 +149,10 @@ const N8NChatbot: React.FC = () => {
     }
   };
 
-  const handleCreateNewSession = () => {
-    createNewSession(activeAgent?.id);
+  const handleCreateNewSession = (agentId?: string) => {
+    const target = agentId || activeAgent?.id || "shuki";
+    setActiveAgentId(target);
+    createNewSession(target);
   };
 
   const handleExportChat = () => {
@@ -190,10 +203,12 @@ const N8NChatbot: React.FC = () => {
         chatSessions={chatSessions}
         currentSessionId={currentSessionId}
         agents={agents}
+        activeAgentId={activeAgentId}
         onCreateNewSession={handleCreateNewSession}
         onSwitchSession={handleSwitchSession}
         onDeleteSession={deleteSession}
         onClearAllHistory={() => clearAllSessions(activeAgent?.id)}
+        onClearAgentHistory={clearAgentSessions}
         onExportChat={handleExportChat}
         hasMessages={messages.length > 0}
       />
