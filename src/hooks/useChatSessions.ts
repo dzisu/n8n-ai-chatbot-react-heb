@@ -65,27 +65,25 @@ export const useChatSessions = (
     if (!isLoggedIn || !ownerUid) return;
 
     const unsubscribe = StorageService.subscribeToSessions(ownerUid, (fetched) => {
-      if (isLocalUpdateRef.current) {
-        // Skip updating messages if this update originated locally
-        isLocalUpdateRef.current = false;
-        return;
-      }
-
       if (fetched.length > 0) {
-        setChatSessions(fetched);
+        setChatSessions((prev) => {
+          // Merge preserving messages already loaded locally
+          return fetched.map((f) => {
+            const existing = prev.find((p) => p.id === f.id);
+            return existing && existing.messages.length > 0
+              ? { ...f, messages: existing.messages }
+              : f;
+          });
+        });
+
         setCurrentSessionId((prev) => {
           if (prev && fetched.some((s) => s.id === prev)) {
-            const current = fetched.find((s) => s.id === prev);
-            if (current) {
-              setMessages(current.messages);
-            }
             return prev;
           }
           const active = fetched.filter((s) => !s.isArchived);
           if (active.length > 0) {
             const match =
               active.find((s) => s.agentId === initialAgentId) || active[0];
-            setMessages(match.messages);
             return match.id;
           }
           return prev;
@@ -97,6 +95,39 @@ export const useChatSessions = (
 
     return () => unsubscribe();
   }, [initialAgentId, isLoggedIn, ownerUid]);
+
+  // Real-time subcollection messages listener for active session
+  useEffect(() => {
+    if (!currentSessionId || !isLoggedIn) return;
+
+    const unsubMessages = StorageService.subscribeToMessages(
+      currentSessionId,
+      (fetchedMsgs) => {
+        if (isLocalUpdateRef.current) {
+          isLocalUpdateRef.current = false;
+          return;
+        }
+        setMessages(fetchedMsgs);
+        setChatSessions((prev) =>
+          prev.map((s) =>
+            s.id === currentSessionId
+              ? {
+                  ...s,
+                  messages: fetchedMsgs,
+                  messageCount: fetchedMsgs.length,
+                  lastMessage:
+                    fetchedMsgs.length > 0
+                      ? fetchedMsgs[fetchedMsgs.length - 1].content
+                      : s.lastMessage,
+                }
+              : s
+          )
+        );
+      }
+    );
+
+    return () => unsubMessages();
+  }, [currentSessionId, isLoggedIn]);
 
   const createNewSession = useCallback(
     (agentId?: string): string => {
@@ -372,6 +403,11 @@ export const useChatSessions = (
             const updatedSession = {
               ...session,
               messages: newMessages,
+              messageCount: newMessages.length,
+              lastMessage:
+                newMessages.length > 0
+                  ? newMessages[newMessages.length - 1].content
+                  : session.lastMessage,
               lastUpdated: new Date(),
               title,
               ownerUid: ownerUid || session.ownerUid,

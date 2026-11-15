@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Message, N8NWebhookPayload, Agent, FileAttachment } from "../types/chat";
 import { N8NService } from "../services/n8nService";
+import { auth } from "../services/firebase";
 
 export const useChat = (
   messages: Message[],
@@ -22,7 +23,17 @@ export const useChat = (
       content: content.trim(),
       sender: "user",
       timestamp: new Date(),
-      attachment,
+      attachment: attachment
+        ? {
+            name: attachment.name,
+            type: attachment.type,
+            size: attachment.size,
+            isImage: attachment.isImage,
+            uploadId: attachment.uploadId || crypto.randomUUID(),
+            status: "uploaded",
+            dataUrl: attachment.dataUrl, // Retained in memory for immediate UI preview
+          }
+        : undefined,
     };
 
     const updatedMessages = [...messages, userMessage];
@@ -36,7 +47,19 @@ export const useChat = (
         timestamp: new Date().toISOString(),
         agentId: activeAgent?.id,
         agentName: activeAgent?.name,
-        file: attachment,
+        userId: auth?.currentUser?.uid,
+        userEmail: auth?.currentUser?.email || undefined,
+        file: attachment
+          ? {
+              name: attachment.name,
+              type: attachment.type,
+              size: attachment.size,
+              isImage: attachment.isImage,
+              uploadId: attachment.uploadId,
+              status: "uploaded",
+            }
+          : undefined,
+        rawFile: attachment?.rawFile,
       };
 
       const webhookUrl = activeAgent?.webhookUrl;

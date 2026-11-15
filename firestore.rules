@@ -58,6 +58,14 @@ service cloud.firestore {
       allow read, update, delete: if isAuthenticated() && (
         resource.data.ownerUid == request.auth.uid || isAdmin()
       );
+
+      // Subcollection for messages - supports unlimited conversation length without 1MB document limit
+      match /messages/{messageId} {
+        allow read, write: if isAuthenticated() && (
+          get(/databases/$(database)/documents/chat_sessions/$(sessionId)).data.ownerUid == request.auth.uid ||
+          isAdmin()
+        );
+      }
     }
   }
 }

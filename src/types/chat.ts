@@ -13,6 +13,9 @@ export interface FileAttachment {
   size: number;
   dataUrl?: string; // Kept in client memory for upload/preview, stripped before saving to Firestore
   isImage?: boolean;
+  rawFile?: File; // Browser File object for binary multipart upload to n8n
+  uploadId?: string;
+  status?: "pending" | "uploaded" | "error";
 }
 
 export interface Message {
@@ -41,6 +44,8 @@ export interface ChatSession {
   title: string;
   agentId: string;
   messages: Message[];
+  messageCount?: number;
+  lastMessage?: string;
   createdAt: Date;
   lastUpdated: Date;
   isArchived?: boolean;
@@ -54,7 +59,10 @@ export interface N8NWebhookPayload {
   timestamp: string;
   agentId?: string;
   agentName?: string;
+  userId?: string;
+  userEmail?: string;
   file?: FileAttachment;
+  rawFile?: File;
 }
 
 export interface N8NWebhookResponse {

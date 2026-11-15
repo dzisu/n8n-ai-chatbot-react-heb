@@ -67,7 +67,11 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
   // Active (unarchived) sessions: non-empty or currently selected
   const activeSessions = useMemo(() => {
     return chatSessions.filter(
-      (s) => !s.isArchived && (s.messages.length > 0 || s.id === currentSessionId)
+      (s) =>
+        !s.isArchived &&
+        ((s.messages && s.messages.length > 0) ||
+          (s.messageCount && s.messageCount > 0) ||
+          s.id === currentSessionId)
     );
   }, [chatSessions, currentSessionId]);
 
@@ -96,9 +100,10 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
       const q = searchQuery.trim().toLowerCase();
       result = result.filter((s) => {
         const matchesTitle = s.title.toLowerCase().includes(q);
-        const matchesContent = s.messages.some(
-          (m) => m.content && m.content.toLowerCase().includes(q)
-        );
+        const matchesContent =
+          (s.messages || []).some(
+            (m) => m.content && m.content.toLowerCase().includes(q)
+          ) || (s.lastMessage && s.lastMessage.toLowerCase().includes(q));
         return matchesTitle || matchesContent;
       });
     }
@@ -474,10 +479,10 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
                             minute: "2-digit",
                           })}
                         </span>
-                        {session.messages.length > 0 && (
+                        {(session.messageCount ?? session.messages?.length ?? 0) > 0 && (
                           <>
                             <span className="text-slate-300 dark:text-slate-600">•</span>
-                            <span>{session.messages.length} הודעות</span>
+                            <span>{session.messageCount ?? session.messages?.length ?? 0} הודעות</span>
                           </>
                         )}
                       </div>
@@ -619,10 +624,10 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
                             minute: "2-digit",
                           })}
                         </span>
-                        {session.messages.length > 0 && (
+                        {(session.messageCount ?? session.messages?.length ?? 0) > 0 && (
                           <>
                             <span className="text-slate-300 dark:text-slate-600">•</span>
-                            <span>{session.messages.length} הודעות</span>
+                            <span>{session.messageCount ?? session.messages?.length ?? 0} הודעות</span>
                           </>
                         )}
                       </div>

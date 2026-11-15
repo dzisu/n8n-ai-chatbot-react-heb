@@ -9,6 +9,15 @@ interface ChatInputProps {
   currentUser?: User | null;
 }
 
+const ALLOWED_EXTENSIONS = [
+  "png", "jpg", "jpeg", "webp", "gif", "svg",
+  "pdf", "txt", "md", "doc", "docx", "csv", "xlsx", "xls", "json", "xml",
+  "py", "rpy", "js", "ts", "html", "css",
+  "mp3", "wav", "m4a", "ogg"
+];
+
+const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024; // 10MB limit as required
+
 export const ChatInput: React.FC<ChatInputProps> = ({
   onSendMessage,
   isLoading,
@@ -30,8 +39,16 @@ export const ChatInput: React.FC<ChatInputProps> = ({
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 15 * 1024 * 1024) {
-      alert("גודל הקובץ חורג מהמקסימום המותר (15MB)");
+    if (file.size > MAX_FILE_SIZE_BYTES) {
+      alert("גודל הקובץ חורג מהמקסימום המותר (10MB). אנא בחר קובץ קטן יותר.");
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      return;
+    }
+
+    const ext = file.name.split(".").pop()?.toLowerCase() || "";
+    if (!ALLOWED_EXTENSIONS.includes(ext)) {
+      alert(`סוג הקובץ (.${ext}) אינו נתמך. ניתן לצרף תמונות, מסמכי PDF, קבצי טקסט/קוד או אודיו.`);
+      if (fileInputRef.current) fileInputRef.current.value = "";
       return;
     }
 
@@ -46,6 +63,9 @@ export const ChatInput: React.FC<ChatInputProps> = ({
         size: file.size,
         dataUrl,
         isImage,
+        rawFile: file,
+        uploadId: crypto.randomUUID(),
+        status: "pending",
       });
     };
 

@@ -1,4 +1,5 @@
 import { N8NWebhookPayload, N8NWebhookResponse } from "../types/chat";
+import { auth } from "./firebase";
 
 export class N8NService {
   private defaultWebhookUrl: string;
@@ -23,12 +24,56 @@ export class N8NService {
     const timeoutId = setTimeout(() => controller.abort(), 120000); // 120 seconds timeout
 
     try {
+      // Obtain Firebase ID token for secure endpoint authorization if authenticated
+      let idToken: string | null = null;
+      if (auth?.currentUser) {
+        try {
+          idToken = await auth.currentUser.getIdToken();
+        } catch (tokenErr) {
+          console.warn("Could not retrieve Firebase ID token:", tokenErr);
+        }
+      }
+
+      const headers: Record<string, string> = {};
+      if (idToken) {
+        headers["Authorization"] = `Bearer ${idToken}`;
+      }
+
+      let requestBody: BodyInit;
+
+      // Direct binary multipart upload when a file is attached
+      if (payload.rawFile) {
+        const formData = new FormData();
+        formData.append("file", payload.rawFile, payload.rawFile.name);
+        formData.append("message", payload.message || "");
+        if (payload.sessionId) formData.append("sessionId", payload.sessionId);
+        formData.append("timestamp", payload.timestamp || new Date().toISOString());
+        if (payload.agentId) formData.append("agentId", payload.agentId);
+        if (payload.agentName) formData.append("agentName", payload.agentName);
+        if (payload.userId) formData.append("userId", payload.userId);
+        if (payload.userEmail) formData.append("userEmail", payload.userEmail);
+        if (payload.file?.uploadId) formData.append("uploadId", payload.file.uploadId);
+
+        requestBody = formData;
+        // Notice: Do NOT set Content-Type header so browser automatically sets multipart/form-data with boundary
+      } else {
+        headers["Content-Type"] = "application/json";
+        requestBody = JSON.stringify({
+          message: payload.message,
+          sessionId: payload.sessionId,
+          timestamp: payload.timestamp,
+          agentId: payload.agentId,
+          agentName: payload.agentName,
+          userId: payload.userId,
+          userEmail: payload.userEmail,
+          file: payload.file,
+        });
+      }
+
       const response = await fetch(targetUrl, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
+        headers,
+        body: requestBody,
         signal: controller.signal,
       });
 
