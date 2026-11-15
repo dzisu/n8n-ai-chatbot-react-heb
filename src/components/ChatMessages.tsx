@@ -17,18 +17,32 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
   activeAgent,
   onSendMessage,
 }) => {
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  const scrollToBottom = (smooth = true) => {
+    const el = containerRef.current;
+    if (!el) return;
+    if (smooth) {
+      el.scrollTo({
+        top: el.scrollHeight,
+        behavior: "smooth",
+      });
+    } else {
+      el.scrollTop = el.scrollHeight;
+    }
   };
 
   useEffect(() => {
-    scrollToBottom();
+    // Scroll container directly without touching window scroll (essential for iOS Safari)
+    scrollToBottom(true);
   }, [messages, isLoading]);
 
   return (
-    <div className="flex-1 overflow-y-auto px-3 sm:px-6 py-4 space-y-4">
+    <div
+      ref={containerRef}
+      className="flex-1 overflow-y-auto px-3 sm:px-6 py-4 space-y-4 overscroll-contain transition-colors"
+      style={{ WebkitOverflowScrolling: "touch" }}
+    >
       {messages.length === 0 ? (
         <EmptyState
           activeAgent={activeAgent}
@@ -45,8 +59,6 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
       )}
 
       {isLoading && <TypingIndicator agent={activeAgent} />}
-
-      <div ref={messagesEndRef} />
     </div>
   );
 };

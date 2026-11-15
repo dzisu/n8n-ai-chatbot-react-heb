@@ -1,6 +1,7 @@
 import React from "react";
-import { Bot, User, Sparkles, Code, Film, BookOpen } from "lucide-react";
+import { User } from "lucide-react";
 import { Message, Agent } from "../types/chat";
+import { DynamicLucideIcon } from "./DynamicLucideIcon";
 
 interface MessageBubbleProps {
   message: Message;
@@ -9,21 +10,6 @@ interface MessageBubbleProps {
 
 export const MessageBubble: React.FC<MessageBubbleProps> = ({ message, agent }) => {
   const isUser = message.sender === "user";
-
-  const renderAgentIcon = (iconName?: string) => {
-    switch (iconName) {
-      case "sparkles":
-        return <Sparkles size={16} />;
-      case "code":
-        return <Code size={16} />;
-      case "film":
-        return <Film size={16} />;
-      case "book-open":
-        return <BookOpen size={16} />;
-      default:
-        return <Bot size={16} />;
-    }
-  };
 
   return (
     <div className={`flex w-full ${isUser ? "justify-start" : "justify-end"} my-2`}>
@@ -42,29 +28,31 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ message, agent }) 
                 }`
           }`}
         >
-          {isUser ? <User size={16} /> : renderAgentIcon(agent?.avatarIcon)}
+          {isUser ? <User size={16} /> : <DynamicLucideIcon name={agent?.avatarIcon} size={16} />}
         </div>
 
         {/* Bubble content */}
         <div className="flex flex-col">
           {/* Header row in bubble */}
           {!isUser && (
-            <span className="text-[11px] text-slate-400 font-medium mb-1 px-1 text-right">
+            <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium mb-1 px-1 text-right">
               {message.agentName || agent?.name || "סוכן"}
             </span>
           )}
 
           <div
-            className={`rounded-2xl px-4 py-3 shadow-md text-sm sm:text-base leading-relaxed text-right ${
+            className={`rounded-2xl px-4 py-3 shadow-sm text-sm sm:text-base leading-relaxed text-right ${
               isUser
                 ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-tr-sm"
-                : "bg-slate-800/90 text-slate-100 rounded-tl-sm border border-slate-700/60"
+                : "bg-white dark:bg-slate-800/90 text-slate-800 dark:text-slate-100 rounded-tl-sm border border-slate-200 dark:border-slate-700/60"
             }`}
           >
             <p className="whitespace-pre-wrap break-words">{message.content}</p>
 
             <p
-              className={`text-[10px] mt-1.5 opacity-60 text-left`}
+              className={`text-[10px] mt-1.5 opacity-60 text-left ${
+                isUser ? "text-white" : "text-slate-500 dark:text-slate-400"
+              }`}
               dir="ltr"
             >
               {new Date(message.timestamp).toLocaleTimeString("he-IL", {

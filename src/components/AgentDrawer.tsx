@@ -1,11 +1,5 @@
 import React, { useState } from "react";
 import {
-  Bot,
-  Sparkles,
-  Code,
-  Film,
-  BookOpen,
-  User,
   Plus,
   X,
   Check,
@@ -14,8 +8,14 @@ import {
   Globe,
   Settings2,
   AlertTriangle,
+  ExternalLink,
 } from "lucide-react";
 import { Agent } from "../types/chat";
+import {
+  DynamicLucideIcon,
+  isValidLucideIcon,
+  normalizeIconName,
+} from "./DynamicLucideIcon";
 
 interface AgentDrawerProps {
   isOpen: boolean;
@@ -44,7 +44,7 @@ export const AgentDrawer: React.FC<AgentDrawerProps> = ({
   const [role, setRole] = useState("");
   const [description, setDescription] = useState("");
   const [webhookUrl, setWebhookUrl] = useState("");
-  const [avatarIcon, setAvatarIcon] = useState("sparkles");
+  const [avatarIcon, setAvatarIcon] = useState("bot");
   const [color, setColor] = useState("from-blue-600 to-indigo-600");
 
   if (!isOpen) return null;
@@ -86,30 +86,13 @@ export const AgentDrawer: React.FC<AgentDrawerProps> = ({
       role: role.trim() || "סוכן AI",
       description: description.trim(),
       webhookUrl: webhookUrl.trim(),
-      avatarIcon,
+      avatarIcon: avatarIcon.trim() || "bot",
       color,
       isDefault: editingAgent?.isDefault || false,
     };
 
     onSaveAgent(newAgent);
     cancelForm();
-  };
-
-  const renderIcon = (iconName?: string, size = 20) => {
-    switch (iconName) {
-      case "sparkles":
-        return <Sparkles size={size} />;
-      case "code":
-        return <Code size={size} />;
-      case "film":
-        return <Film size={size} />;
-      case "book-open":
-        return <BookOpen size={size} />;
-      case "user":
-        return <User size={size} />;
-      default:
-        return <Bot size={size} />;
-    }
   };
 
   const colorOptions = [
@@ -121,14 +104,24 @@ export const AgentDrawer: React.FC<AgentDrawerProps> = ({
     { label: "ציאן-כחול", value: "from-cyan-600 to-blue-600" },
   ];
 
-  const iconOptions = [
-    { id: "sparkles", label: "ניצוץ", icon: <Sparkles size={18} /> },
-    { id: "bot", label: "רובוט", icon: <Bot size={18} /> },
-    { id: "code", label: "קוד", icon: <Code size={18} /> },
-    { id: "film", label: "קולנוע", icon: <Film size={18} /> },
-    { id: "book-open", label: "ספר/אפיון", icon: <BookOpen size={18} /> },
-    { id: "user", label: "אישי", icon: <User size={18} /> },
+  // Quick suggestions for icons
+  const popularIcons = [
+    "bot",
+    "sparkles",
+    "code",
+    "film",
+    "graduation-cap",
+    "brain",
+    "camera",
+    "music",
+    "zap",
+    "message-square",
+    "smile",
+    "heart",
+    "shield",
   ];
+
+  const isIconValid = isValidLucideIcon(avatarIcon);
 
   return (
     <div className="fixed inset-0 z-50 flex justify-end">
@@ -139,23 +132,26 @@ export const AgentDrawer: React.FC<AgentDrawerProps> = ({
       />
 
       {/* Drawer content */}
-      <div className="relative w-full max-w-md bg-slate-900/95 backdrop-blur-md border-l border-slate-700/60 shadow-2xl h-full flex flex-col z-10 text-right">
+      <div className="relative w-full max-w-md bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-l border-slate-200 dark:border-slate-700/60 shadow-2xl h-full flex flex-col z-10 text-right">
         {/* Header */}
-        <div className="p-5 border-b border-slate-700/60 flex items-center justify-between">
+        <div
+          className="p-4 sm:p-5 border-b border-slate-200 dark:border-slate-700/60 flex items-center justify-between"
+          style={{ paddingTop: "max(1rem, env(safe-area-inset-top, 1rem))" }}
+        >
           <div className="flex items-center gap-2">
             <button
               onClick={onClose}
-              className="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+              className="p-2 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
               title="סגור"
             >
               <X size={20} />
             </button>
             <div>
-              <h2 className="text-lg font-bold text-white flex items-center gap-2">
-                <Settings2 className="text-blue-400" size={20} />
+              <h2 className="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                <Settings2 className="text-blue-500 dark:text-blue-400" size={20} />
                 ניהול והחלפת סוכנים
               </h2>
-              <p className="text-xs text-slate-400 mt-0.5">
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                 בחר סוכן לשיחה או הגדר Webhook ייעודי
               </p>
             </div>
@@ -164,7 +160,7 @@ export const AgentDrawer: React.FC<AgentDrawerProps> = ({
           {!isCreating && !editingAgent && (
             <button
               onClick={startCreate}
-              className="bg-blue-600 hover:bg-blue-500 text-white text-xs font-medium py-2 px-3 rounded-lg flex items-center gap-1.5 transition-all shadow-md"
+              className="bg-blue-600 hover:bg-blue-500 text-white text-xs font-medium py-2 px-3 rounded-lg flex items-center gap-1.5 transition-all shadow-md active:scale-95"
             >
               <Plus size={16} />
               <span>סוכן חדש</span>
@@ -178,23 +174,23 @@ export const AgentDrawer: React.FC<AgentDrawerProps> = ({
           {(isCreating || editingAgent) && (
             <form
               onSubmit={handleSubmit}
-              className="bg-slate-800/90 border border-blue-500/40 rounded-xl p-4 space-y-3 shadow-lg"
+              className="bg-slate-50 dark:bg-slate-800/90 border border-blue-400/50 dark:border-blue-500/40 rounded-xl p-4 space-y-3 shadow-lg"
             >
-              <div className="flex items-center justify-between border-b border-slate-700 pb-2">
-                <h3 className="text-sm font-semibold text-white">
+              <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-700 pb-2">
+                <h3 className="text-sm font-semibold text-slate-800 dark:text-white">
                   {editingAgent ? `עריכת סוכן: ${editingAgent.name}` : "הגדרת סוכן חדש"}
                 </h3>
                 <button
                   type="button"
                   onClick={cancelForm}
-                  className="text-slate-400 hover:text-white"
+                  className="text-slate-400 hover:text-slate-700 dark:hover:text-white"
                 >
                   <X size={16} />
                 </button>
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1">
+                <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
                   שם הסוכן *
                 </label>
                 <input
@@ -203,12 +199,12 @@ export const AgentDrawer: React.FC<AgentDrawerProps> = ({
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="למשל: שוקי / יועץ מתמטיקה"
-                  className="w-full bg-slate-700/60 text-white text-xs p-2.5 rounded-lg border border-slate-600 focus:border-blue-500 focus:outline-none"
+                  className="w-full bg-white dark:bg-slate-700/60 text-slate-900 dark:text-white text-xs p-2.5 rounded-lg border border-slate-300 dark:border-slate-600 focus:border-blue-500 focus:outline-none"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1">
+                <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
                   תפקיד קצר / כותרת
                 </label>
                 <input
@@ -216,12 +212,12 @@ export const AgentDrawer: React.FC<AgentDrawerProps> = ({
                   value={role}
                   onChange={(e) => setRole(e.target.value)}
                   placeholder="למשל: עוזר אישי, מומחה תוכן, מתכנת"
-                  className="w-full bg-slate-700/60 text-white text-xs p-2.5 rounded-lg border border-slate-600 focus:border-blue-500 focus:outline-none"
+                  className="w-full bg-white dark:bg-slate-700/60 text-slate-900 dark:text-white text-xs p-2.5 rounded-lg border border-slate-300 dark:border-slate-600 focus:border-blue-500 focus:outline-none"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1">
+                <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
                   תיאור הסוכן
                 </label>
                 <textarea
@@ -229,14 +225,14 @@ export const AgentDrawer: React.FC<AgentDrawerProps> = ({
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="כמה מילים על תחום ההתמחות של הסוכן..."
-                  className="w-full bg-slate-700/60 text-white text-xs p-2 rounded-lg border border-slate-600 focus:border-blue-500 focus:outline-none resize-none"
+                  className="w-full bg-white dark:bg-slate-700/60 text-slate-900 dark:text-white text-xs p-2 rounded-lg border border-slate-300 dark:border-slate-600 focus:border-blue-500 focus:outline-none resize-none"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1 flex items-center justify-between">
+                <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1 flex items-center justify-between">
                   <span>כתובת n8n Webhook URL *</span>
-                  <span className="text-[10px] text-blue-400">ייחודי לסוכן זה</span>
+                  <span className="text-[10px] text-blue-500 dark:text-blue-400">ייחודי לסוכן זה</span>
                 </label>
                 <input
                   type="text"
@@ -244,68 +240,121 @@ export const AgentDrawer: React.FC<AgentDrawerProps> = ({
                   value={webhookUrl}
                   onChange={(e) => setWebhookUrl(e.target.value)}
                   placeholder="https://n8n.yourdomain.com/webhook/..."
-                  className="w-full bg-slate-700/60 text-white text-xs p-2.5 rounded-lg border border-slate-600 focus:border-blue-500 focus:outline-none font-mono"
+                  className="w-full bg-white dark:bg-slate-700/60 text-slate-900 dark:text-white text-xs p-2.5 rounded-lg border border-slate-300 dark:border-slate-600 focus:border-blue-500 focus:outline-none font-mono"
                   dir="ltr"
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-2 pt-1">
-                <div>
-                  <label className="block text-xs font-medium text-slate-300 mb-1">
-                    אייקון
+              {/* Dynamic Lucide Icon Picker by Name */}
+              <div className="space-y-1.5 pt-1">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-medium text-slate-700 dark:text-slate-300">
+                    שם אייקון מתוך חבילת Lucide
                   </label>
-                  <div className="flex flex-wrap gap-1">
-                    {iconOptions.map((opt) => (
-                      <button
-                        key={opt.id}
-                        type="button"
-                        onClick={() => setAvatarIcon(opt.id)}
-                        className={`p-1.5 rounded-lg border text-xs flex items-center justify-center transition-all ${
-                          avatarIcon === opt.id
-                            ? "bg-blue-600 text-white border-blue-400"
-                            : "bg-slate-700 text-slate-300 border-slate-600 hover:bg-slate-600"
-                        }`}
-                        title={opt.label}
-                      >
-                        {opt.icon}
-                      </button>
-                    ))}
+                  <a
+                    href="https://lucide.dev/icons"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-[11px] text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:underline flex items-center gap-1"
+                    title="פתח את מאגר האייקונים ב-lucide.dev"
+                  >
+                    <span>קטלוג lucide.dev</span>
+                    <ExternalLink size={10} />
+                  </a>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <div className="relative flex-1">
+                    <input
+                      type="text"
+                      value={avatarIcon}
+                      onChange={(e) => setAvatarIcon(e.target.value)}
+                      placeholder="bot, sparkles, brain, camera, film, code..."
+                      className="w-full bg-white dark:bg-slate-700/60 text-slate-900 dark:text-white text-xs p-2.5 rounded-lg border border-slate-300 dark:border-slate-600 focus:border-blue-500 focus:outline-none font-mono"
+                      dir="ltr"
+                    />
+                  </div>
+
+                  {/* Live preview badge */}
+                  <div
+                    className={`w-10 h-10 rounded-xl bg-gradient-to-br ${color} flex items-center justify-center text-white shadow-md flex-shrink-0 transition-transform`}
+                    title={`תצוגה מקדימה: ${normalizeIconName(avatarIcon)}`}
+                  >
+                    <DynamicLucideIcon name={avatarIcon} size={20} />
                   </div>
                 </div>
 
-                <div>
-                  <label className="block text-xs font-medium text-slate-300 mb-1">
-                    צבע
-                  </label>
+                <div className="flex items-center justify-between text-[10px]">
+                  <span className={isIconValid ? "text-emerald-500 font-medium flex items-center gap-1" : "text-amber-500 flex items-center gap-1"}>
+                    {isIconValid ? (
+                      <>
+                        <Check size={12} />
+                        אייקון Lucide זוהה: {normalizeIconName(avatarIcon)}
+                      </>
+                    ) : (
+                      "שם חופשי (יוצג Bot אם לא קיים ב-Lucide)"
+                    )}
+                  </span>
+                </div>
+
+                {/* Popular chips */}
+                <div className="pt-1">
+                  <span className="text-[10px] text-slate-400 block mb-1">
+                    הצעות מהירות לבחירה:
+                  </span>
                   <div className="flex flex-wrap gap-1">
-                    {colorOptions.map((col) => (
+                    {popularIcons.map((ic) => (
                       <button
-                        key={col.value}
+                        key={ic}
                         type="button"
-                        onClick={() => setColor(col.value)}
-                        className={`w-6 h-6 rounded-full bg-gradient-to-r ${col.value} border-2 transition-all ${
-                          color === col.value
-                            ? "border-white scale-110"
-                            : "border-transparent opacity-70 hover:opacity-100"
+                        onClick={() => setAvatarIcon(ic)}
+                        className={`px-2 py-1 rounded-md text-[11px] font-mono flex items-center gap-1 border transition-all ${
+                          avatarIcon.toLowerCase().trim() === ic
+                            ? "bg-blue-600 text-white border-blue-500 shadow-sm"
+                            : "bg-white dark:bg-slate-700/60 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-700"
                         }`}
-                        title={col.label}
-                      />
+                      >
+                        <DynamicLucideIcon name={ic} size={12} />
+                        <span>{ic}</span>
+                      </button>
                     ))}
                   </div>
                 </div>
               </div>
 
-              <div className="flex justify-end gap-2 pt-2 border-t border-slate-700">
+              {/* Color Picker */}
+              <div className="pt-1">
+                <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+                  ערכת צבעים לאוואטר
+                </label>
+                <div className="flex flex-wrap gap-1.5">
+                  {colorOptions.map((col) => (
+                    <button
+                      key={col.value}
+                      type="button"
+                      onClick={() => setColor(col.value)}
+                      className={`w-7 h-7 rounded-full bg-gradient-to-r ${col.value} border-2 transition-all ${
+                        color === col.value
+                          ? "border-blue-500 scale-110 shadow-md ring-2 ring-blue-400/40"
+                          : "border-transparent opacity-75 hover:opacity-100"
+                      }`}
+                      title={col.label}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-2 pt-2 border-t border-slate-200 dark:border-slate-700">
                 <button
                   type="button"
                   onClick={cancelForm}
-                  className="px-3 py-1.5 text-xs text-slate-400 hover:text-white rounded-lg hover:bg-slate-700"
+                  className="px-3 py-1.5 text-xs text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700"
                 >
                   ביטול
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-1.5 text-xs bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium rounded-lg hover:from-blue-700 hover:to-indigo-700 shadow-md"
+                  className="px-4 py-1.5 text-xs bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium rounded-lg hover:from-blue-700 hover:to-indigo-700 shadow-md active:scale-95"
                 >
                   שמור סוכן
                 </button>
@@ -325,8 +374,8 @@ export const AgentDrawer: React.FC<AgentDrawerProps> = ({
                   key={agent.id}
                   className={`p-3.5 rounded-xl border transition-all ${
                     isActive
-                      ? "bg-blue-600/15 border-blue-500/50 shadow-md ring-1 ring-blue-500/30"
-                      : "bg-slate-800/40 border-slate-700/50 hover:bg-slate-800/70"
+                      ? "bg-blue-50/90 dark:bg-blue-600/15 border-blue-400 dark:border-blue-500/50 shadow-md ring-1 ring-blue-500/30"
+                      : "bg-slate-50/80 dark:bg-slate-800/40 border-slate-200/80 dark:border-slate-700/50 hover:bg-slate-100 dark:hover:bg-slate-800/70"
                   }`}
                 >
                   <div className="flex items-start gap-3">
@@ -336,19 +385,19 @@ export const AgentDrawer: React.FC<AgentDrawerProps> = ({
                         agent.color || "from-blue-600 to-indigo-600"
                       } flex items-center justify-center flex-shrink-0 text-white shadow-md`}
                     >
-                      {renderIcon(agent.avatarIcon, 22)}
+                      <DynamicLucideIcon name={agent.avatarIcon} size={22} />
                     </div>
 
                     {/* Info */}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between gap-1">
                         <div className="flex items-center gap-1.5">
-                          <h4 className="text-sm font-bold text-white truncate">
+                          <h4 className="text-sm font-bold text-slate-800 dark:text-white truncate">
                             {agent.name}
                           </h4>
                           {isActive && (
-                            <span className="bg-emerald-500/20 text-emerald-300 text-[10px] px-2 py-0.5 rounded-full font-medium border border-emerald-500/30 flex items-center gap-1">
-                              <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
+                            <span className="bg-emerald-500/20 text-emerald-600 dark:text-emerald-300 text-[10px] px-2 py-0.5 rounded-full font-medium border border-emerald-500/30 flex items-center gap-1">
+                              <span className="w-1.5 h-1.5 bg-emerald-500 dark:bg-emerald-400 rounded-full animate-pulse" />
                               פעיל
                             </span>
                           )}
@@ -358,15 +407,15 @@ export const AgentDrawer: React.FC<AgentDrawerProps> = ({
                         <div className="flex items-center gap-1">
                           <button
                             onClick={() => startEdit(agent)}
-                            className="p-1 text-slate-400 hover:text-blue-300 hover:bg-slate-700/60 rounded transition-colors"
-                            title="ערוך פרטים ו-Webhook"
+                            className="p-1 text-slate-400 hover:text-blue-500 dark:hover:text-blue-300 hover:bg-slate-200 dark:hover:bg-slate-700/60 rounded transition-colors"
+                            title="ערוך פרטים, אייקון ו-Webhook"
                           >
                             <Edit2 size={14} />
                           </button>
                           {!agent.isDefault && (
                             <button
                               onClick={() => onDeleteAgent(agent.id)}
-                              className="p-1 text-slate-400 hover:text-red-400 hover:bg-slate-700/60 rounded transition-colors"
+                              className="p-1 text-slate-400 hover:text-red-500 hover:bg-slate-200 dark:hover:bg-slate-700/60 rounded transition-colors"
                               title="מחק סוכן"
                             >
                               <Trash2 size={14} />
@@ -375,20 +424,20 @@ export const AgentDrawer: React.FC<AgentDrawerProps> = ({
                         </div>
                       </div>
 
-                      <p className="text-xs text-blue-300 font-medium mt-0.5">
+                      <p className="text-xs text-blue-600 dark:text-blue-300 font-medium mt-0.5">
                         {agent.role}
                       </p>
 
                       {agent.description && (
-                        <p className="text-[11px] text-slate-400 mt-1 line-clamp-2 leading-relaxed">
+                        <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 line-clamp-2 leading-relaxed">
                           {agent.description}
                         </p>
                       )}
 
                       {/* Webhook indicator */}
-                      <div className="mt-2 pt-2 border-t border-slate-700/40 flex items-center justify-between text-[11px]">
-                        <div className="flex items-center gap-1 truncate text-slate-400 max-w-[180px]">
-                          <Globe size={12} className="flex-shrink-0 text-slate-500" />
+                      <div className="mt-2 pt-2 border-t border-slate-200 dark:border-slate-700/40 flex items-center justify-between text-[11px]">
+                        <div className="flex items-center gap-1 truncate text-slate-500 dark:text-slate-400 max-w-[180px]">
+                          <Globe size={12} className="flex-shrink-0 text-slate-400" />
                           <span
                             className="font-mono text-[10px] truncate"
                             dir="ltr"
@@ -403,7 +452,7 @@ export const AgentDrawer: React.FC<AgentDrawerProps> = ({
                         {hasPlaceholderWebhook ? (
                           <button
                             onClick={() => startEdit(agent)}
-                            className="text-amber-400 text-[10px] flex items-center gap-1 hover:underline"
+                            className="text-amber-500 dark:text-amber-400 text-[10px] flex items-center gap-1 hover:underline font-medium"
                           >
                             <AlertTriangle size={11} />
                             הגדר כתובת
@@ -414,13 +463,13 @@ export const AgentDrawer: React.FC<AgentDrawerProps> = ({
                               onSelectAgent(agent.id);
                               onClose();
                             }}
-                            className="text-blue-400 hover:text-blue-300 text-xs font-medium flex items-center gap-1"
+                            className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 text-xs font-medium flex items-center gap-1"
                           >
                             <span>בחר סוכן</span>
                             <Check size={13} />
                           </button>
                         ) : (
-                          <span className="text-emerald-400 text-[10px]">נבחר לשיחה</span>
+                          <span className="text-emerald-600 dark:text-emerald-400 text-[10px] font-medium">נבחר לשיחה</span>
                         )}
                       </div>
                     </div>
@@ -432,8 +481,11 @@ export const AgentDrawer: React.FC<AgentDrawerProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="p-4 border-t border-slate-700/60 bg-slate-900/60 text-center">
-          <p className="text-[11px] text-slate-400">
+        <div
+          className="p-4 border-t border-slate-200 dark:border-slate-700/60 bg-slate-50/80 dark:bg-slate-900/60 text-center"
+          style={{ paddingBottom: "max(1rem, env(safe-area-inset-bottom, 1rem))" }}
+        >
+          <p className="text-[11px] text-slate-500 dark:text-slate-400">
             כל הודעה נשלחת ישירות ל-Webhook של הסוכן הפעיל ב-n8n
           </p>
         </div>

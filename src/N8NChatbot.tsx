@@ -11,6 +11,30 @@ import { StorageService } from "./services/storageService";
 import { Agent } from "./types/chat";
 
 const N8NChatbot: React.FC = () => {
+  // Theme state - Default is dark
+  const [theme, setTheme] = useState<"dark" | "light">(() => {
+    const saved = localStorage.getItem("chatbot_theme");
+    return saved === "light" ? "light" : "dark";
+  });
+
+  const toggleTheme = () => {
+    setTheme((prev) => {
+      const next = prev === "dark" ? "light" : "dark";
+      localStorage.setItem("chatbot_theme", next);
+      return next;
+    });
+  };
+
+  useEffect(() => {
+    if (theme === "dark") {
+      document.documentElement.classList.add("dark");
+      document.documentElement.classList.remove("light");
+    } else {
+      document.documentElement.classList.remove("dark");
+      document.documentElement.classList.add("light");
+    }
+  }, [theme]);
+
   // Agents State
   const [agents, setAgents] = useState<Agent[]>(() =>
     StorageService.loadAgents()
@@ -126,12 +150,12 @@ const N8NChatbot: React.FC = () => {
   return (
     <div
       dir="rtl"
-      className="flex h-screen w-full bg-slate-950 text-slate-100 overflow-hidden relative font-sans"
+      className="flex h-[100dvh] h-full w-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 overflow-hidden relative font-sans transition-colors duration-200"
     >
       {/* Background ambient lighting */}
-      <div className="absolute inset-0 bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 -z-10" />
-      <div className="absolute top-0 right-1/4 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl pointer-events-none -z-10" />
-      <div className="absolute bottom-0 left-1/4 w-96 h-96 bg-indigo-600/10 rounded-full blur-3xl pointer-events-none -z-10" />
+      <div className="absolute inset-0 bg-gradient-to-br from-slate-100 via-blue-50/20 to-indigo-50/20 dark:from-slate-950 dark:via-slate-900 dark:to-indigo-950 -z-10" />
+      <div className="absolute top-0 right-1/4 w-96 h-96 bg-blue-500/10 dark:bg-blue-600/10 rounded-full blur-3xl pointer-events-none -z-10" />
+      <div className="absolute bottom-0 left-1/4 w-96 h-96 bg-indigo-500/10 dark:bg-indigo-600/10 rounded-full blur-3xl pointer-events-none -z-10" />
 
       {/* Main Chat Area - 100% full screen on mobile by default */}
       <div className="flex-1 flex flex-col h-full w-full min-w-0 relative">
@@ -140,6 +164,8 @@ const N8NChatbot: React.FC = () => {
           onOpenHistory={() => setIsHistoryOpen(true)}
           onOpenAgents={() => setIsAgentsOpen(true)}
           sessionsCount={chatSessions.length}
+          theme={theme}
+          onToggleTheme={toggleTheme}
         />
 
         <ChatMessages
