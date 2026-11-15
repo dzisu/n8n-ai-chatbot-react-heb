@@ -6,6 +6,7 @@ import { ChatInput } from "./components/ChatInput";
 import { AgentDrawer } from "./components/AgentDrawer";
 import { UserManagementDrawer } from "./components/UserManagementDrawer";
 import { LoginModal } from "./components/LoginModal";
+import { OpeningScreen } from "./components/OpeningScreen";
 import { useChatSessions } from "./hooks/useChatSessions";
 import { useChat } from "./hooks/useChat";
 import { N8NService } from "./services/n8nService";
@@ -112,7 +113,7 @@ const N8NChatbot: React.FC = () => {
     return visibleAgents.find((a) => a.id === activeAgentId) || visibleAgents[0];
   }, [currentUser, visibleAgents, activeAgentId]);
 
-  // Chat sessions
+  // Chat sessions - only loaded/synced when user is logged in
   const {
     chatSessions,
     currentSessionId,
@@ -127,7 +128,7 @@ const N8NChatbot: React.FC = () => {
     deleteSession,
     updateMessages,
     saveCurrentSession,
-  } = useChatSessions(activeAgent?.id || "shuki");
+  } = useChatSessions(activeAgent?.id || "shuki", !!currentUser);
 
   // Visible sessions for the current user
   const visibleSessions = useMemo(() => {
@@ -286,36 +287,45 @@ const N8NChatbot: React.FC = () => {
       <div className="absolute top-0 right-1/4 w-96 h-96 bg-blue-500/10 dark:bg-blue-600/10 rounded-full blur-3xl pointer-events-none -z-10" />
       <div className="absolute bottom-0 left-1/4 w-96 h-96 bg-indigo-500/10 dark:bg-indigo-600/10 rounded-full blur-3xl pointer-events-none -z-10" />
 
-      {/* Main Chat Area - 100% full screen on mobile by default */}
-      <div className="flex-1 flex flex-col h-full w-full min-w-0 relative">
-        <ChatHeader
-          activeAgent={activeAgent}
-          currentUser={currentUser}
-          onOpenHistory={() => setIsHistoryOpen(true)}
-          onOpenAgents={() => setIsAgentsOpen(true)}
-          onOpenUserManagement={() => setIsUserManagementOpen(true)}
+      {/* Main Area: If not logged in, show Opening Screen with solid n8n logo only */}
+      {!currentUser ? (
+        <OpeningScreen
           onOpenLogin={() => setIsLoginOpen(true)}
-          sessionsCount={activeSessionsCount}
           theme={theme}
           onToggleTheme={toggleTheme}
         />
+      ) : (
+        /* Main Chat Area - 100% full screen on mobile by default when logged in */
+        <div className="flex-1 flex flex-col h-full w-full min-w-0 relative">
+          <ChatHeader
+            activeAgent={activeAgent}
+            currentUser={currentUser}
+            onOpenHistory={() => setIsHistoryOpen(true)}
+            onOpenAgents={() => setIsAgentsOpen(true)}
+            onOpenUserManagement={() => setIsUserManagementOpen(true)}
+            onOpenLogin={() => setIsLoginOpen(true)}
+            sessionsCount={activeSessionsCount}
+            theme={theme}
+            onToggleTheme={toggleTheme}
+          />
 
-        <ChatMessages
-          messages={messages}
-          isLoading={isLoading}
-          activeAgent={activeAgent}
-          currentUser={currentUser}
-          onOpenLogin={() => setIsLoginOpen(true)}
-          onSendMessage={sendMessage}
-        />
+          <ChatMessages
+            messages={messages}
+            isLoading={isLoading}
+            activeAgent={activeAgent}
+            currentUser={currentUser}
+            onOpenLogin={() => setIsLoginOpen(true)}
+            onSendMessage={sendMessage}
+          />
 
-        <ChatInput
-          onSendMessage={sendMessage}
-          isLoading={isLoading}
-          activeAgent={activeAgent}
-          currentUser={currentUser}
-        />
-      </div>
+          <ChatInput
+            onSendMessage={sendMessage}
+            isLoading={isLoading}
+            activeAgent={activeAgent}
+            currentUser={currentUser}
+          />
+        </div>
+      )}
 
       {/* History & Archive Drawer - Hidden by default */}
       <ChatSidebar

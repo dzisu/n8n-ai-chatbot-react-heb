@@ -2,9 +2,12 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { ChatSession, Message } from "../types/chat";
 import { StorageService } from "../services/storageService";
 
-export const useChatSessions = (initialAgentId: string = "shuki") => {
+export const useChatSessions = (
+  initialAgentId: string = "shuki",
+  isLoggedIn: boolean = false
+) => {
   const [chatSessions, setChatSessions] = useState<ChatSession[]>(() =>
-    StorageService.loadSessions()
+    isLoggedIn ? StorageService.loadSessions() : []
   );
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -14,6 +17,13 @@ export const useChatSessions = (initialAgentId: string = "shuki") => {
 
   // Initial setup from local cache
   useEffect(() => {
+    if (!isLoggedIn) {
+      setChatSessions([]);
+      setCurrentSessionId(null);
+      setMessages([]);
+      return;
+    }
+
     const savedSessions = StorageService.loadSessions();
     setChatSessions(savedSessions);
 
@@ -42,10 +52,12 @@ export const useChatSessions = (initialAgentId: string = "shuki") => {
       setCurrentSessionId(matching.id);
       setMessages(matching.messages);
     }
-  }, [initialAgentId]);
+  }, [initialAgentId, isLoggedIn]);
 
   // Real-time Firestore sync across devices
   useEffect(() => {
+    if (!isLoggedIn) return;
+
     const unsubscribe = StorageService.subscribeToSessions((fetched) => {
       if (isLocalUpdateRef.current) {
         // Skip updating messages if this update originated locally
@@ -76,7 +88,7 @@ export const useChatSessions = (initialAgentId: string = "shuki") => {
     });
 
     return () => unsubscribe();
-  }, [initialAgentId]);
+  }, [initialAgentId, isLoggedIn]);
 
   const createNewSession = useCallback(
     (agentId?: string): string => {
