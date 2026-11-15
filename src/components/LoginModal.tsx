@@ -94,6 +94,8 @@ export const LoginModal: React.FC<LoginModalProps> = ({
         setError("הסיסמה קצרה מדי (נדרשים לפחות 6 תווים).");
       } else if (code === "auth/invalid-email") {
         setError("כתובת אימייל אינה תקינה.");
+      } else if (code === "auth/operation-not-allowed") {
+        setError("הרשמה באמצעות אימייל וסיסמה אינה מופעלת כרגע בפרויקט.");
       } else if (code === "auth/too-many-requests") {
         setError("בוצעו ניסיונות התחברות רבים מדי. נסה שוב מאוחר יותר.");
       } else {
