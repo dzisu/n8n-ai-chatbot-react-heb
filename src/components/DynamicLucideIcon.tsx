@@ -47,5 +47,17 @@ export const DynamicLucideIcon: React.FC<DynamicLucideIconProps> = ({
     (LucideIcons as any)[pascalName + "Icon"] ||
     LucideIcons.Bot;
 
-  return <IconComponent size={size} className={className} />;
+  return (
+    <IconComponent
+      size={size}
+      className={`shrink-0 aspect-square ${className}`}
+      style={{
+        width: `${size}px`,
+        height: `${size}px`,
+        minWidth: `${size}px`,
+        minHeight: `${size}px`,
+        aspectRatio: "1 / 1",
+      }}
+    />
+  );
 };

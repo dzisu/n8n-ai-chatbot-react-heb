@@ -27,15 +27,36 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ message, agent }) 
       >
         {/* Avatar */}
         <div
-          className={`w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center flex-shrink-0 text-white shadow-md ${
+          className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center shrink-0 aspect-square text-white shadow-md ${
             isUser
               ? "bg-gradient-to-br from-blue-600 to-indigo-600"
               : `bg-gradient-to-br ${
                   agent?.color || "from-emerald-600 to-teal-600"
                 }`
           }`}
+          style={{
+            width: "2.25rem",
+            height: "2.25rem",
+            minWidth: "2.25rem",
+            minHeight: "2.25rem",
+            aspectRatio: "1 / 1",
+          }}
         >
-          {isUser ? <User size={16} /> : <DynamicLucideIcon name={agent?.avatarIcon} size={16} />}
+          {isUser ? (
+            <User
+              size={18}
+              className="shrink-0 aspect-square"
+              style={{
+                width: 18,
+                height: 18,
+                minWidth: 18,
+                minHeight: 18,
+                aspectRatio: "1 / 1",
+              }}
+            />
+          ) : (
+            <DynamicLucideIcon name={agent?.avatarIcon} size={18} />
+          )}
         </div>
 
         {/* Bubble content */}

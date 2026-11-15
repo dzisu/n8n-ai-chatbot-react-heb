@@ -36,6 +36,13 @@ body {
   height: 6px;
 }
 
+/* Ensure all Lucide SVGs retain strictly square 1:1 aspect ratio across all browsers */
+svg.lucide,
+.lucide {
+  aspect-ratio: 1 / 1;
+  flex-shrink: 0;
+}
+
 ::-webkit-scrollbar-track {
   background: transparent;
 }

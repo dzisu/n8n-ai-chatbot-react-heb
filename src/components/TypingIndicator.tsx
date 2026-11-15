@@ -11,11 +11,18 @@ export const TypingIndicator: React.FC<TypingIndicatorProps> = ({ agent }) => {
     <div className="flex w-full justify-end my-2">
       <div className="flex max-w-[80%] gap-2.5 sm:gap-3 flex-row-reverse items-center">
         <div
-          className={`w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-br ${
+          className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br ${
             agent?.color || "from-emerald-600 to-teal-600"
-          } flex items-center justify-center flex-shrink-0 text-white shadow-md`}
+          } flex items-center justify-center shrink-0 aspect-square text-white shadow-md`}
+          style={{
+            width: "2.25rem",
+            height: "2.25rem",
+            minWidth: "2.25rem",
+            minHeight: "2.25rem",
+            aspectRatio: "1 / 1",
+          }}
         >
-          <DynamicLucideIcon name={agent?.avatarIcon} size={16} />
+          <DynamicLucideIcon name={agent?.avatarIcon} size={18} />
         </div>
         <div className="bg-white dark:bg-slate-800/90 rounded-2xl rounded-tl-sm px-4 py-3 border border-slate-200 dark:border-slate-700/60 shadow-sm">
           <div className="flex space-x-2 space-x-reverse items-center">
