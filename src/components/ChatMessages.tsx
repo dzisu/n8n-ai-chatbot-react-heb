@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from "react";
-import { Message, Agent } from "../types/chat";
+import { Message, Agent, User } from "../types/chat";
 import { MessageBubble } from "./MessageBubble";
 import { TypingIndicator } from "./TypingIndicator";
 import { EmptyState } from "./EmptyState";
@@ -8,6 +8,8 @@ interface ChatMessagesProps {
   messages: Message[];
   isLoading: boolean;
   activeAgent?: Agent;
+  currentUser?: User | null;
+  onOpenLogin?: () => void;
   onSendMessage?: (message: string) => void;
 }
 
@@ -15,6 +17,8 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
   messages,
   isLoading,
   activeAgent,
+  currentUser,
+  onOpenLogin,
   onSendMessage,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -46,6 +50,8 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
       {messages.length === 0 ? (
         <EmptyState
           activeAgent={activeAgent}
+          currentUser={currentUser}
+          onOpenLogin={onOpenLogin}
           onSuggestionClick={onSendMessage}
         />
       ) : (

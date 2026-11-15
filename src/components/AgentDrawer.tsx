@@ -9,8 +9,9 @@ import {
   Settings2,
   AlertTriangle,
   ExternalLink,
+  LogOut,
 } from "lucide-react";
-import { Agent } from "../types/chat";
+import { Agent, User } from "../types/chat";
 import {
   DynamicLucideIcon,
   isValidLucideIcon,
@@ -22,9 +23,11 @@ interface AgentDrawerProps {
   onClose: () => void;
   agents: Agent[];
   activeAgentId: string;
+  currentUser: User | null;
   onSelectAgent: (agentId: string) => void;
   onSaveAgent: (agent: Agent) => void;
   onDeleteAgent: (agentId: string) => void;
+  onLogout: () => void;
 }
 
 export const AgentDrawer: React.FC<AgentDrawerProps> = ({
@@ -32,9 +35,11 @@ export const AgentDrawer: React.FC<AgentDrawerProps> = ({
   onClose,
   agents,
   activeAgentId,
+  currentUser,
   onSelectAgent,
   onSaveAgent,
   onDeleteAgent,
+  onLogout,
 }) => {
   const [editingAgent, setEditingAgent] = useState<Agent | null>(null);
   const [isCreating, setIsCreating] = useState(false);
@@ -157,7 +162,7 @@ export const AgentDrawer: React.FC<AgentDrawerProps> = ({
             </div>
           </div>
 
-          {!isCreating && !editingAgent && (
+          {!isCreating && !editingAgent && currentUser?.role === "admin" && (
             <button
               onClick={startCreate}
               className="bg-blue-600 hover:bg-blue-500 text-white text-xs font-medium py-2 px-3 rounded-lg flex items-center gap-1.5 transition-all shadow-md active:scale-95"
@@ -407,33 +412,35 @@ export const AgentDrawer: React.FC<AgentDrawerProps> = ({
                           )}
                         </div>
 
-                        {/* Actions */}
-                        <div className="flex items-center gap-1">
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              startEdit(agent);
-                            }}
-                            className="p-1.5 text-slate-400 hover:text-blue-500 dark:hover:text-blue-300 hover:bg-slate-200 dark:hover:bg-slate-700/60 rounded-lg transition-colors"
-                            title="ערוך פרטים, אייקון ו-Webhook"
-                          >
-                            <Edit2 size={15} />
-                          </button>
-                          {!agent.isDefault && (
+                        {/* Actions (Admin only) */}
+                        {currentUser?.role === "admin" && (
+                          <div className="flex items-center gap-1">
                             <button
                               type="button"
                               onClick={(e) => {
                                 e.stopPropagation();
-                                onDeleteAgent(agent.id);
+                                startEdit(agent);
                               }}
-                              className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-slate-200 dark:hover:bg-slate-700/60 rounded-lg transition-colors"
-                              title="מחק סוכן"
+                              className="p-1.5 text-slate-400 hover:text-blue-500 dark:hover:text-blue-300 hover:bg-slate-200 dark:hover:bg-slate-700/60 rounded-lg transition-colors"
+                              title="ערוך פרטים, אייקון ו-Webhook"
                             >
-                              <Trash2 size={15} />
+                              <Edit2 size={15} />
                             </button>
-                          )}
-                        </div>
+                            {!agent.isDefault && (
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  onDeleteAgent(agent.id);
+                                }}
+                                className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-slate-200 dark:hover:bg-slate-700/60 rounded-lg transition-colors"
+                                title="מחק סוכן"
+                              >
+                                <Trash2 size={15} />
+                              </button>
+                            )}
+                          </div>
+                        )}
                       </div>
 
                       <p className="text-xs text-blue-600 dark:text-blue-300 font-medium mt-0.5">
@@ -459,17 +466,19 @@ export const AgentDrawer: React.FC<AgentDrawerProps> = ({
                               ? "ברירת מחדל"
                               : agent.webhookUrl.replace(/^https?:\/\//, "")}
                           </span>
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              startEdit(agent);
-                            }}
-                            className="text-blue-500 hover:underline text-[10px] mr-1 flex-shrink-0"
-                            title="ערוך כתובת Webhook"
-                          >
-                            (ערוך)
-                          </button>
+                          {currentUser?.role === "admin" && (
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                startEdit(agent);
+                              }}
+                              className="text-blue-500 hover:underline text-[10px] mr-1 flex-shrink-0"
+                              title="ערוך כתובת Webhook"
+                            >
+                              (ערוך)
+                            </button>
+                          )}
                         </div>
 
                         {isActive ? (
@@ -500,12 +509,27 @@ export const AgentDrawer: React.FC<AgentDrawerProps> = ({
           </div>
         </div>
 
-        {/* Footer */}
+        {/* Footer with Logout */}
         <div
-          className="p-4 border-t border-slate-200 dark:border-slate-700/60 bg-slate-50/80 dark:bg-slate-900/60 text-center"
+          className="p-4 border-t border-slate-200 dark:border-slate-700/60 bg-slate-50/80 dark:bg-slate-900/60 space-y-2.5"
           style={{ paddingBottom: "max(1rem, env(safe-area-inset-bottom, 1rem))" }}
         >
-          <p className="text-[11px] text-slate-500 dark:text-slate-400">
+          {currentUser && (
+            <button
+              type="button"
+              onClick={() => {
+                onLogout();
+                onClose();
+              }}
+              className="w-full bg-red-50 hover:bg-red-100 dark:bg-red-950/40 dark:hover:bg-red-900/60 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800/60 py-2.5 px-3 rounded-xl font-medium text-xs flex items-center justify-center gap-2 transition-all shadow-sm active:scale-98"
+              title="התנתק מהמערכת"
+            >
+              <LogOut size={15} />
+              <span>התנתק מהמערכת ({currentUser.username})</span>
+            </button>
+          )}
+
+          <p className="text-[11px] text-slate-500 dark:text-slate-400 text-center">
             כל הודעה נשלחת ישירות ל-Webhook של הסוכן הפעיל ב-n8n
           </p>
         </div>

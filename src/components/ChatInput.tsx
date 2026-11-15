@@ -1,17 +1,19 @@
 import React, { useState, useRef } from "react";
 import { Send, Paperclip, X, FileText } from "lucide-react";
-import { Agent, FileAttachment } from "../types/chat";
+import { Agent, FileAttachment, User } from "../types/chat";
 
 interface ChatInputProps {
   onSendMessage: (message: string, attachment?: FileAttachment) => void;
   isLoading: boolean;
   activeAgent?: Agent;
+  currentUser?: User | null;
 }
 
 export const ChatInput: React.FC<ChatInputProps> = ({
   onSendMessage,
   isLoading,
   activeAgent,
+  currentUser,
 }) => {
   const [inputMessage, setInputMessage] = useState("");
   const [attachment, setAttachment] = useState<FileAttachment | null>(null);
@@ -74,7 +76,8 @@ export const ChatInput: React.FC<ChatInputProps> = ({
     }
   };
 
-  const canSend = (inputMessage.trim().length > 0 || attachment !== null) && !isLoading;
+  const isInputDisabled = isLoading || !currentUser || !activeAgent;
+  const canSend = (inputMessage.trim().length > 0 || attachment !== null) && !isInputDisabled;
 
   return (
     <div
@@ -131,8 +134,8 @@ export const ChatInput: React.FC<ChatInputProps> = ({
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
-            disabled={isLoading}
-            className="p-2.5 sm:p-3 rounded-2xl text-slate-500 hover:text-blue-600 dark:text-slate-400 dark:hover:text-blue-400 bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700/70 transition-all flex-shrink-0 active:scale-95 shadow-sm"
+            disabled={isInputDisabled}
+            className="p-2.5 sm:p-3 rounded-2xl text-slate-500 hover:text-blue-600 dark:text-slate-400 dark:hover:text-blue-400 bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700/70 transition-all flex-shrink-0 active:scale-95 shadow-sm disabled:opacity-40 disabled:cursor-not-allowed"
             title="צרף קובץ או תמונה"
           >
             <Paperclip size={18} />
@@ -147,14 +150,16 @@ export const ChatInput: React.FC<ChatInputProps> = ({
               onChange={(e) => setInputMessage(e.target.value)}
               onKeyPress={handleKeyPress}
               placeholder={
-                attachment
+                !currentUser
+                  ? "יש להתחבר למערכת כדי להתחיל שיחה..."
+                  : !activeAgent
+                  ? "אין סוכן מורשה לבחירה..."
+                  : attachment
                   ? "הוסף הודעה לקובץ או לחץ שלח..."
-                  : activeAgent
-                  ? `כתוב הודעה ל-${activeAgent.name}...`
-                  : "כתוב הודעה כאן..."
+                  : `כתוב הודעה ל-${activeAgent.name}...`
               }
-              className="w-full bg-slate-100 dark:bg-slate-800/80 text-slate-900 dark:text-white text-sm sm:text-base p-2.5 sm:p-3 rounded-2xl border border-slate-200 dark:border-slate-700/70 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30 transition-all placeholder-slate-400 dark:placeholder-slate-500 shadow-inner"
-              disabled={isLoading}
+              className="w-full bg-slate-100 dark:bg-slate-800/80 text-slate-900 dark:text-white text-sm sm:text-base p-2.5 sm:p-3 rounded-2xl border border-slate-200 dark:border-slate-700/70 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30 transition-all placeholder-slate-400 dark:placeholder-slate-500 shadow-inner disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={isInputDisabled}
               autoFocus={false}
             />
           </div>

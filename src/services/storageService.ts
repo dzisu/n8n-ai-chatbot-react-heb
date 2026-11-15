@@ -1,4 +1,16 @@
-import { ChatSession, Agent } from "../types/chat";
+import { ChatSession, Agent, User } from "../types/chat";
+
+export const DEFAULT_USERS: User[] = [
+  {
+    id: "admin-1",
+    username: "admin",
+    password: "admin",
+    email: "admin@example.com",
+    role: "admin",
+    allowedAgentIds: [],
+    createdAt: new Date().toISOString(),
+  },
+];
 
 export const DEFAULT_AGENTS: Agent[] = [
   {
@@ -47,6 +59,57 @@ export class StorageService {
   private static readonly SESSIONS_KEY = "chatSessions";
   private static readonly AGENTS_KEY = "chatAgents";
   private static readonly ACTIVE_AGENT_KEY = "activeAgentId";
+  private static readonly USERS_KEY = "chatbotUsers";
+  private static readonly CURRENT_USER_KEY = "chatbotCurrentUser";
+
+  // USERS
+  static loadUsers(): User[] {
+    try {
+      const stored = localStorage.getItem(this.USERS_KEY);
+      if (!stored) {
+        this.saveUsers(DEFAULT_USERS);
+        return DEFAULT_USERS;
+      }
+      const parsed = JSON.parse(stored);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return parsed;
+      }
+      return DEFAULT_USERS;
+    } catch (error) {
+      console.warn("Failed to load users from storage:", error);
+      return DEFAULT_USERS;
+    }
+  }
+
+  static saveUsers(users: User[]): void {
+    try {
+      localStorage.setItem(this.USERS_KEY, JSON.stringify(users));
+    } catch (error) {
+      console.warn("Failed to save users to storage:", error);
+    }
+  }
+
+  static loadCurrentUser(): User | null {
+    try {
+      const stored = localStorage.getItem(this.CURRENT_USER_KEY);
+      if (!stored) return null;
+      return JSON.parse(stored);
+    } catch {
+      return null;
+    }
+  }
+
+  static saveCurrentUser(user: User | null): void {
+    try {
+      if (!user) {
+        localStorage.removeItem(this.CURRENT_USER_KEY);
+      } else {
+        localStorage.setItem(this.CURRENT_USER_KEY, JSON.stringify(user));
+      }
+    } catch (error) {
+      console.warn("Failed to save current user:", error);
+    }
+  }
 
   // AGENTS
   static loadAgents(): Agent[] {
