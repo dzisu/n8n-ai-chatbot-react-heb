@@ -1,5 +1,5 @@
 import React from "react";
-import { Lock, LogIn, ShieldAlert, Sparkles } from "lucide-react";
+import { Lock, LogIn, ShieldAlert } from "lucide-react";
 import { Agent, User } from "../types/chat";
 import { DynamicLucideIcon } from "./DynamicLucideIcon";
 
@@ -75,12 +75,6 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
   // Normal Empty State for authorized agent
   return (
     <div className="flex flex-col items-center justify-center h-full text-center px-4 py-8 max-w-lg mx-auto my-auto">
-      {/* n8n Capsule Device for Agent category */}
-      <div className="mb-4 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FFE8EC] dark:bg-[#5A0026] border border-[#FF91AC]/30 text-[#87003C] dark:text-[#FFBCCA] font-mono text-[10px] uppercase tracking-wider font-semibold">
-        <Sparkles size={11} />
-        <span>N8N WORKFLOW AGENT • ACTIVE</span>
-      </div>
-
       <div
         className="w-20 h-20 sm:w-22 sm:h-22 rounded-3xl bg-[#FF91AC] text-[#191919] flex items-center justify-center shrink-0 aspect-square shadow-n8n-pink mb-4 border border-[#FFBCCA]"
         style={{

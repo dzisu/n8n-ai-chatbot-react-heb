@@ -9,7 +9,6 @@ import {
   UserCheck,
 } from "lucide-react";
 import { Agent, User } from "../types/chat";
-import { DynamicLucideIcon } from "./DynamicLucideIcon";
 import { N8NLogo } from "./N8NLogo";
 
 interface ChatHeaderProps {
@@ -25,7 +24,7 @@ interface ChatHeaderProps {
 }
 
 export const ChatHeader: React.FC<ChatHeaderProps> = ({
-  activeAgent,
+  activeAgent: _activeAgent,
   currentUser,
   onOpenHistory,
   onOpenAgents,
@@ -129,31 +128,16 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
         <div className="flex items-center gap-1.5 sm:gap-2">
           <button
             onClick={isLoggedIn ? onOpenAgents : onOpenLogin}
-            className="flex items-center gap-2 px-3 py-1.5 sm:py-2 rounded-xl bg-[#F1F1F1] dark:bg-[#242424] hover:bg-[#F8F8F8] dark:hover:bg-[#353535] border border-[#E0E0E0] dark:border-[#353535] text-[#191919] dark:text-[#FAFAFA] shadow-sm transition-all active:scale-95 cursor-pointer"
-            title="בחר סוכן או נהל סוכנים"
+            disabled={!isLoggedIn}
+            className={`flex items-center gap-1.5 sm:gap-2 px-3 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-bold transition-all shadow-sm ${
+              isLoggedIn
+                ? "bg-[#FF91AC] hover:bg-[#FFD0D9] text-[#191919] active:scale-95 cursor-pointer shadow-n8n-pink"
+                : "bg-[#F1F1F1] dark:bg-[#242424] text-[#868686] dark:text-[#676767] border border-[#E0E0E0] dark:border-[#353535] cursor-not-allowed opacity-50"
+            }`}
+            title={isLoggedIn ? "פתח ניהול והחלפת סוכנים" : "יש להתחבר כדי לבחור סוכנים"}
           >
-            {activeAgent ? (
-              <>
-                <div
-                  className="w-6 h-6 rounded-lg bg-[#FF91AC] text-[#191919] flex items-center justify-center shrink-0 font-bold text-xs"
-                >
-                  <DynamicLucideIcon name={activeAgent.avatarIcon} size={14} />
-                </div>
-                <div className="text-right leading-tight min-w-0">
-                  <div className="font-bold text-xs sm:text-sm truncate max-w-[120px] sm:max-w-[180px]">
-                    {activeAgent.name}
-                  </div>
-                  <div className="text-[10px] text-[#676767] dark:text-[#A4A4A4] truncate max-w-[120px] sm:max-w-[180px]">
-                    {activeAgent.role}
-                  </div>
-                </div>
-              </>
-            ) : (
-              <>
-                <Users size={16} className="text-[#FF91AC]" />
-                <span className="text-xs sm:text-sm font-medium">סוכנים</span>
-              </>
-            )}
+            <Users size={16} />
+            <span>סוכנים</span>
           </button>
         </div>
       </div>
