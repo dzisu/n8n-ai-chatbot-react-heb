@@ -8,6 +8,56 @@ interface MessageBubbleProps {
   agent?: Agent;
 }
 
+const LINK_REGEX = /(\[([^\]]+)\]\((https?:\/\/[^\s)]+)\))|(https?:\/\/[^\s<]+[^<.,:;"')\]\s])/g;
+
+const renderMessageContent = (content: string, isUser: boolean) => {
+  if (!content) return null;
+
+  const elements: React.ReactNode[] = [];
+  let lastIndex = 0;
+  let match: RegExpExecArray | null;
+
+  LINK_REGEX.lastIndex = 0;
+
+  while ((match = LINK_REGEX.exec(content)) !== null) {
+    const matchStart = match.index;
+    const matchEnd = LINK_REGEX.lastIndex;
+
+    if (matchStart > lastIndex) {
+      elements.push(content.substring(lastIndex, matchStart));
+    }
+
+    const isMarkdown = Boolean(match[1]);
+    const label = isMarkdown ? match[2] : match[4];
+    const url = isMarkdown ? match[3] : match[4];
+
+    elements.push(
+      <a
+        key={`link-${matchStart}`}
+        href={url}
+        target="_blank"
+        rel="noopener noreferrer"
+        dir={isMarkdown ? undefined : "ltr"}
+        className={`inline underline underline-offset-2 break-all transition-colors font-medium ${
+          isUser
+            ? "text-[#FAFAFA] hover:opacity-80"
+            : "text-[#0969da] dark:text-[#58a6ff] hover:text-[#054ada] dark:hover:text-[#79b8ff]"
+        }`}
+      >
+        {label}
+      </a>
+    );
+
+    lastIndex = matchEnd;
+  }
+
+  if (lastIndex < content.length) {
+    elements.push(content.substring(lastIndex));
+  }
+
+  return elements;
+};
+
 export const MessageBubble: React.FC<MessageBubbleProps> = ({ message, agent }) => {
   const isUser = message.sender === "user";
   const attachment = message.attachment;
@@ -140,7 +190,9 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ message, agent }) 
             )}
 
             {message.content && (
-              <p className="whitespace-pre-wrap break-words leading-relaxed font-sans">{message.content}</p>
+              <p className="whitespace-pre-wrap break-words leading-relaxed font-sans">
+                {renderMessageContent(message.content, isUser)}
+              </p>
             )}
 
             <p
