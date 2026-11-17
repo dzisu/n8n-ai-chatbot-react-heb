@@ -70,16 +70,40 @@ npm run build
 
 ---
 
-## 🔒 פריסת כללי אבטחה ל-Firestore
+## ☁️ פריסה ל-Cloudflare Workers (במקום Firebase Hosting)
 
-כדי לפרוס את כללי האבטחה המעודכנים מתוך `firestore.rules`:
+Firebase נשאר בשלב זה שירות ה-Authentication וה-Firestore בלבד. קבצי ה-React הסטטיים נבנים ב-Vite ונפרסים ל-Cloudflare Workers Static Assets. כך מחליפים את Firebase Hosting מבלי לשנות משתמשים, שיחות או כללי ההרשאה הקיימים.
+
+### תוכנית המעבר שבוצעה
+
+1. **הפרדת אחריות:** הוגדר `wrangler.jsonc` שמגיש רק את `dist/` דרך Cloudflare Workers, עם fallback של SPA לנתיבי React.
+2. **שמירת Firebase:** משתני `VITE_FIREBASE_*` נשארים משתני build ציבוריים בלבד; הם מזהי לקוח ולא סודות. Firebase Auth ו-Firestore ממשיכים לפעול ללא העברת נתונים.
+3. **הגנת סודות:** אין להוסיף ל-`VITE_*` סודות, מפתחות n8n או טוקנים. אם ה-webhook דורש סוד, יש ליישם Cloudflare Worker Proxy נפרד ולהגדיר את הסוד כ-Worker Secret.
+4. **בדיקה:** לפני פריסה מריצים `npm run type-check` ו-`npm run build`. לאחר הפריסה בודקים התחברות, יצירה/קריאה של שיחה, שליחת הודעה וטעינת נתיב ישיר של SPA.
+5. **הפעלה וגלגול לאחור:** הפריסה מתבצעת עם `npm run deploy:cloudflare`. גרסה קודמת נשארת זמינה ב-Cloudflare Workers לצורך rollback. Firebase Hosting אינו יעד ההפצה של היישום לאחר האימות.
+
+### הגדרות פריסה
+
 ```bash
-firebase deploy --only firestore:rules
+# התקנת תלויות ובדיקה
+npm ci --include=dev
+npm run type-check
+npm run build
+
+# התחברות חד-פעמית לחשבון Cloudflare בעל הרשאת Workers
+npx wrangler login
+
+# פריסה
+npm run deploy:cloudflare
 ```
 
-ולפריסת האתר המלא ב-Firebase Hosting:
+`wrangler` יחזיר את כתובת ה-`workers.dev` של היישום. לפני חיבור hostname תחת `zisu.uk`, יש לוודא שב-CORS של ה-webhooks ב-n8n מותר מקור ה-Cloudflare החדש. הגדרת Cloudflare Access מומלצת כאשר היישום מיועד לקבוצה מוגבלת, אך אינה מחליפה את Firebase Auth ואת כללי Firestore.
+
+## 🔒 פריסת כללי אבטחה ל-Firestore
+
+לפריסת **כללי Firestore בלבד** (לא Hosting):
 ```bash
-firebase deploy --only hosting
+firebase deploy --only firestore:rules
 ```
 
 ---
