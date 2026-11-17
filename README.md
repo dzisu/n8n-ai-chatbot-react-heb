@@ -84,5 +84,22 @@ firebase deploy --only hosting
 
 ---
 
+## 🔮 תוכנית לעתיד: השלמת הקשחת אבטחה ב-Firebase (Future Roadmap)
+
+### רקע והצורך באבטחה:
+כיום, אפליקציית ה-React מתקשרת ישירות מדפדפן הלקוח מול ה-Webhooks של n8n.
+כאשר שרתי n8n דורשים אימות (כגון Header Auth או מפתחות API סודיים), לא נכון להטמיע מפתחות סודיים אלה בתוך קוד ה-Frontend (React). כל ערך המועבר מדפדפן הלקוח חשוף למשתמשים דרך כלי המפתחים (Browser DevTools / Network tab), מה שהופך את הסוד לציבורי בפועל ומאפשר שימוש לא מורשה ב-Webhook.
+
+### הפתרון המתוכנן (Architecture Hardening):
+חיבור שכבת Backend מאובטחת באמצעות **Firebase Cloud Functions** (או שירות Proxy מנוהל כגון Cloudflare Worker):
+1. **הפרדת תחומי אחריות וסודיות:** קוד ה-React בצד הלקוח יפנה לנקודת קצה מוגנת בפרויקט Firebase (למשל נתיב `/api/chat` או Callable Function), כשהוא מאומת ומאובטח באמצעות ה-Firebase Auth ID Token של המשתמש המחובר.
+2. **החזקת סודות בצד שרת בלבד:** פונקציית ה-Cloud Function תחזיק את סודות האימות (Header Auth / Secret Keys של n8n) בתוך מנגנון ניהול סודות מאובטח (Environment Secrets / Secret Manager) של Firebase ו-Google Cloud.
+3. **ניתוב ופרוקסי מאובטח:** הפונקציה תאמת את הרשאות המשתמש, תצרף את ה-Header Auth הנדרש ותעביר את הבקשה ל-Webhook של n8n בצורה מאובטחת.
+4. **תאימות ל-Cloudflare:** ה-Webhook ב-n8n יוגדר עם Header Auth מלא וייפתח עבורו חריג Cloudflare מדויק לנתיב הייעודי בלבד.
+
+> **סטטוס נוכחי:** תוכנית עתידית להטמעה בעת שדרוג תוכנית ה-Firebase (Blaze Plan) או בעת הצורך בהקשחת סביבות ייצור חיצוניות. כרגע לא מבוצע בפועל.
+
+---
+
 ## 📄 רישיון
 MIT License.
